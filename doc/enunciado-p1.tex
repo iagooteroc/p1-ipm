@@ -1,0 +1,227 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+
+
+\title{Práctica 1 - Interfaces Gráficas de Usuario con Gtk+ y Python}
+\author{Interfaces Persona Máquina}
+\date{Curso 16/17}
+
+\renewcommand{\abstractname}{Objetivos}
+
+
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+  Aplicar los conocimientos adquiridos sobre el desarrollo de
+  interfaces gráficas de usuario creando una aplicación cuya interfaz
+  gráfica de escritorio se implementará utilizando el lenguaje de
+  programación Python y la librería gráfica Gtk+.
+\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Descripción}
+
+La aplicación que desarrollarás será una pequeña base de datos de películas
+que mostrará a la usuaria las películas que ya ha visto, las que tiene
+pendientes de ver, y, usando un servicio en red, ofrecerá recomendaciones
+a partir de películas ya vistas.
+
+Los siguientes apartados describen los \emph{sprints} que debes
+realizar según el orden de realización.
+
+
+\subsection{Requisitos no funcionales}
+\begin{itemize}
+\item La implementación se realizará con python y GTK+.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sprint 1}
+
+En este \emph{sprint} debes realizar los siguientes pasos:
+
+\begin{enumerate}
+\item Diseña una IU que permita ver una lista de películas y realizar
+las tareas básicas: añadir, borrar, editar.
+
+  Puedes emplear el formato de tu elección para documentar el diseño.
+
+\item Haz un diseño software de la aplicación para dar soporte a la
+  interface que acabas de diseñar.
+
+  El diseño debe ajustarse a la idea básica del MVC: separar la vista
+  del modelo.
+
+  Para documentar el diseño debes usar los diagramas UML necesarios.
+
+\item Implementa el diseño.
+
+\item Valida todos los pasos anteriores, en especial el funcionamiento
+  de tu implementación. A continuación asignale al último commit del
+  repositorio la etiqueta \texttt{sprint1}.
+
+\item Valida el contenido del repositorio remoto\footnote{HINT:
+    después de clonarlo, puedes hacer un reset a la etiqueta
+    \texttt{sprint1} (\texttt{git clone --hard sprint1})}.
+\end{enumerate}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sprint 2}
+
+En este \emph{sprint} debes realizar los siguientes pasos:
+
+\begin{enumerate}
+\item Internazionaliza la aplicación.
+
+  Usa \texttt{gettext} para el soporte de idiomas.
+
+\item Localiza el idioma de la aplicación a dos idiomas de tu
+  preferencia.
+
+\item Valida todos los pasos anteriores, en especial el funcionamiento
+  de tu implementación. A continuación asignale al último commit del
+  repositorio la etiqueta \texttt{sprint2}.
+
+\item Valida el contenido del repositorio remoto.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sprint 3}
+
+En este \emph{sprint} debes realizar los siguientes pasos:
+
+\begin{enumerate}
+\item Incrementa el diseño de la IU de forma que permita marcar las
+  películas que ya hayan sido vistas, y poder ver por separado la
+  lista de películas que han sido vistas y las que están pedientes.
+
+\item Incrementa el diseño software de la aplicación para dar soporte
+  a los cambios que estas introduciendo.
+
+\item Implementa el diseño.
+
+\item Valida todos los pasos anteriores, en especial el funcionamiento
+  de tu implementación. A continuación asignale al último commit del
+  repositorio la etiqueta \texttt{sprint3}.
+
+\item Valida el contenido del repositorio remoto.
+\end{enumerate}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sprint 4}
+
+
+En este \emph{sprint} debes realizar los siguientes pasos:
+
+\begin{enumerate}
+\item Incrementa el diseño de la IU para incluir un mecanismo que
+  ofreca a la usuaria recomendaciones a partir de las películas ya
+  vistas.
+
+  IMPORTANTE: Las recomendaciones se obtienen de un servicio en red.
+
+\item Incrementa el diseño software de la aplicación para dar soporte
+  a los cambios que estas introduciendo.
+
+\item Implementa el diseño.
+
+  Puedes usar el servicio en red de tu preferencia. Si no conoces ninguno,
+  te sugerimos el ofrecido en \url{https://www.themoviedb.org/}
+
+\item Valida todos los pasos anteriores, en especial el funcionamiento
+  de tu implementación. A continuación asignale al último commit del
+  repositorio la etiqueta \texttt{sprint4}.
+
+\item Valida el contenido del repositorio remoto.
+\end{enumerate}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sprint 5}
+
+En este \emph{sprint} debes realizar los siguientes pasos:
+
+\begin{enumerate}
+\item Documenta y corrige los casos en que la interface no cumple el
+  principio ``principle of least astonishment''.
+
+\item Documenta y corrige los casos en que la interface:
+  \begin{itemize}
+  \item no gestiona los errores,
+  \item no proporciona \textit{feedback} cuando es necesario,
+  \item no la concurrencia, i.e. se bloquea.
+  \end{itemize}
+
+\item Documenta y corrige los casos en que la interface no cumple las
+  \emph{Gnome Human Interface Guidelines}.
+
+\item Valida todos los pasos anteriores, en especial el funcionamiento
+  de tu implementación. A continuación asignale al último commit del
+  repositorio la etiqueta \texttt{sprint5}.
+
+\item Valida el contenido del repositorio remoto.
+\end{enumerate}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Evaluación}
+
+Para que la práctica pueda ser evaluada como apta, debe cumplir las
+siguientes condiciones:
+
+
+\begin{itemize}
+\item Ingeniería Software
+  \begin{itemize}
+  \item La aplicación se ejecuta si fallos.
+  \item Los commits reflejan el orden indicado para las tareas.
+  \item Los commits correspondientes al final de una tarea tienen la
+    etiqueta correspondiente.
+  \item Se han completado todas las tareas.
+  \item El diseño software se ajusta al patrón MVC.
+  \item La parte del modelo se corresponde con las instrucciones
+    adjuntas a la práctica.
+  \end{itemize}
+
+\item Experiencia de usuario
+  \begin{itemize}
+  \item La interfaz cumple el principio ``principle of least astonishment''.
+  \item La interfaz se ajusta a las \emph{Gnome Human Interface
+      Guidelines}.
+  \end{itemize}
+\end{itemize}
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
