@@ -4,7 +4,7 @@
 ## Objetivos
 
 Aplicar los conocimientos adquiridos sobre el desarrollo de
-interfaces gráficas de usuario creando una aplicación cuya interfaz
+interfaces gráficas de usuaria creando una aplicación cuya interfaz
 gráfica de escritorio se implementará utilizando el lenguaje de
 programación Python y la librería gráfica Gtk+.
 
@@ -24,7 +24,7 @@ Independientemente de las penalizaciones correspondientes, la valoración
 de la práctica será la suma de las valoraciones obtenidas en los siguientes
 apartados:
 
-* 0 o 1 punto. El repositorio refleja el desarrollo indicado en el enunciado.  
+* 0 ó 1 punto. El repositorio refleja el desarrollo indicado en el enunciado.  
   Es decir,
     - Todos los pasos dan lugar a uno o varios commits.
     - Los commits que se indican tienen asociada la etiqueta correspondiente.
