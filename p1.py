@@ -26,24 +26,13 @@ class TreeViewFilterWindow(Gtk.Window):
 
         #creating the treeview and adding the columns
         self.treeview = Gtk.TreeView.new_with_model(self.film_liststore)
-        renderer1 = Gtk.CellRendererText()
-        renderer1.set_property("editable",True)
-        renderer1.connect("edited",self.column1_edited)
-        column1 = Gtk.TreeViewColumn("Nombre", renderer1, text=0)
-        self.treeview.append_column(column1)
-        
-        renderer2 = Gtk.CellRendererText()
-        renderer2.set_property("editable",True)
-        renderer2.connect("edited",self.column2_edited)
-        column2 = Gtk.TreeViewColumn("Descripción", renderer2, text=1)
-        self.treeview.append_column(column2)
-        
-        #for i, column_title in enumerate(["Nombre","Desc"]):
-        #    renderer = Gtk.CellRendererText()
-        #    renderer.set_property("editable",True)
-        #    column = Gtk.TreeViewColumn(column_title, renderer, text=i)
-        #    self.treeview.append_column(column)
-        #    renderer.connect("edited",self.text_edited)
+
+        for i, column_title in enumerate(["Nombre","Desc"]):
+            renderer = Gtk.CellRendererText()
+            renderer.set_property("editable",True)
+            column = Gtk.TreeViewColumn(column_title, renderer, text=i)
+            self.treeview.append_column(column)
+            renderer.connect("edited",self.text_edited, self.film_liststore, i)
             
 
         #setting up the layout and putting the treeview in a scrollwindow
@@ -59,11 +48,8 @@ class TreeViewFilterWindow(Gtk.Window):
 
         self.show_all()
 
-    def column1_edited(self, widget, path, text):
-        self.film_liststore[path][0] = text
-    
-    def column2_edited(self, widget, path, text):
-        self.film_liststore[path][1] = text
+    def text_edited(self, widget, path, text, model=None, column=0):
+        self.film_liststore[path][column] = text
 
     def on_remove_clicked(self, widget):
         selection = self.treeview.get_selection()
