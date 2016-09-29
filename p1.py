@@ -1,3 +1,4 @@
+
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -57,12 +58,21 @@ class TreeViewFilterWindow(Gtk.Window):
         self.film_liststore[path][column] = text
         
     def on_add_clicked(self, widget): 
-        add = DialogAdd(self)
-        response = add.run()
-        
-        if response == Gtk.ResponseType.OK:
-            print("Ok")
-        add.destroy()
+        dialogAdd = Gtk.Dialog("Add", self,
+		                              Gtk.DialogFlags.MODAL,
+		                              ("OK", Gtk.ResponseType.OK,
+		                              "Cancel", Gtk.ResponseType.CANCEL))
+        dialogAdd.set_default_size(150, 100)
+        entry = Gtk.Entry()
+        box = dialogAdd.get_content_area()
+        box.add(entry)
+        dialogAdd.show_all()
+
+        response = dialogAdd.run()
+        text = entry.get_text()
+        dialogAdd.destroy()
+        if (response == Gtk.ResponseType.OK) and (text != ''):
+            self.add_film(self, text)
     
     def add_film(self, widget, name):
         self.film_liststore.append(list((name, "SampleDescription")))
@@ -79,32 +89,26 @@ class TreeViewFilterWindow(Gtk.Window):
                 model.remove(iter)
             warning.destroy()
 
-class DialogAdd(Gtk.Dialog):
-    def __init__(self, parent):
-        Gtk.Dialog.__init__(self, "Add", parent, 0,
-            ("Aceptar", Gtk.ResponseType.OK,
-             "Cancelar", Gtk.ResponseType.CANCEL))
-        self.set_default_size(150, 100)
-        self.set_modal(True)
-        entry = Gtk.Entry()
-        box = self.get_content_area()
-        box.add(entry)
-        # Se puede poner el Enter como Aceptar: entry.connect("activate", 
-        ########TODO########
-        # Esto tiene que hacerse despus de darle a Aceptar:
-        #new_text = entry.get_text()
-        #parent.add_film(parent, new_text)
-        self.show_all() # igual no hace falta
+#class DialogAdd(Gtk.Dialog):
+#    def __init__(self, parent):
+#        Gtk.Dialog.__init__(self, "Add", parent, Gtk.DialogFlags.MODAL,
+#            ("Aceptar", Gtk.ResponseType.OK,
+#             "Cancelar", Gtk.ResponseType.CANCEL))
+#        self.set_default_size(150, 100)
+#        
+#        entry = Gtk.Entry()
+#        box = self.get_content_area()
+#        box.add(entry)
+#        self.show_all()
 
 class DialogWarning(Gtk.Dialog):
 
     def __init__(self, parent, text):
-        Gtk.Dialog.__init__(self, "Aviso", parent, 0,
+        Gtk.Dialog.__init__(self, "Aviso", parent, Gtk.DialogFlags.MODAL,
             ("Aceptar", Gtk.ResponseType.OK,
              "Cancelar", Gtk.ResponseType.CANCEL))
 
         self.set_default_size(150, 100)
-        self.set_modal(True)
 
         label = Gtk.Label("¿Seguro que desea eliminar la pelcula ''" + text+ "''?")
 
