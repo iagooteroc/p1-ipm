@@ -8,10 +8,17 @@ film_list = [("Ejemplo1", "Desc1"),
                  ("Ejemplo2", "Desc2"),
                  ("Ejemplo3", "Desc3")]
 
+#class FilmList():
+#    def __init__(self):
+#        self.filmList = Gtk.ListStore(str, str)
+#        for film_ref in film_list:
+#            self.filmList.append(list(film_ref))
+        
+
 class TreeViewFilterWindow(Gtk.Window):
 
     def __init__(self):
-        Gtk.Window.__init__(self, title="Lista de pelculas")
+        Gtk.Window.__init__(self, title="Lista de peliculas")
         self.set_border_width(10)
 
         #Setting up the self.grid in which the elements are to be positionned
@@ -28,7 +35,7 @@ class TreeViewFilterWindow(Gtk.Window):
         #creating the treeview and adding the columns
         self.treeview = Gtk.TreeView.new_with_model(self.film_liststore)
 
-        for i, column_title in enumerate(["Nombre","Descripcin"]):
+        for i, column_title in enumerate(["Nombre","Descripcion"]):
             renderer = Gtk.CellRendererText()
             renderer.set_property("editable",True)
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
@@ -47,10 +54,15 @@ class TreeViewFilterWindow(Gtk.Window):
         self.add_button.connect("clicked", self.on_add_clicked)
         self.grid.attach_next_to(self.add_button, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
         
+        # Adding the Edit button
+        self.edit_button = Gtk.Button.new_with_label("Editar")
+        self.edit_button.connect("clicked", self.on_edit_clicked)
+        self.grid.attach_next_to(self.edit_button, self.add_button, Gtk.PositionType.RIGHT, 1, 1)
+        
         # Adding the Remove button
         self.remove_button = Gtk.Button.new_with_label("Eliminar")
         self.remove_button.connect("clicked", self.on_remove_clicked)
-        self.grid.attach_next_to(self.remove_button, self.add_button, Gtk.PositionType.RIGHT, 1, 1)
+        self.grid.attach_next_to(self.remove_button, self.edit_button, Gtk.PositionType.RIGHT, 1, 1)
 
         self.show_all()
 
@@ -62,20 +74,71 @@ class TreeViewFilterWindow(Gtk.Window):
 		                              Gtk.DialogFlags.MODAL,
 		                              ("OK", Gtk.ResponseType.OK,
 		                              "Cancel", Gtk.ResponseType.CANCEL))
-        dialogAdd.set_default_size(150, 100)
-        entry = Gtk.Entry()
+        #dialogAdd.set_default_size(150, 100)
         box = dialogAdd.get_content_area()
-        box.add(entry)
+        
+        label = Gtk.Label("Name:")
+        label.set_justify(Gtk.Justification.LEFT)
+        box.pack_start(label, True, True, 0)
+        
+        entry_name = Gtk.Entry()
+        box.pack_start(entry_name, True, True, 0)
+        
+        label = Gtk.Label("Description:")
+        label.set_justify(Gtk.Justification.LEFT)
+        box.pack_start(label, True, True, 0)
+        
+        entry_description = Gtk.Entry()
+        box.pack_start(entry_description, True, True, 0)
         dialogAdd.show_all()
 
         response = dialogAdd.run()
-        text = entry.get_text()
+        name = entry_name.get_text()
+        description = entry_description.get_text()
         dialogAdd.destroy()
-        if (response == Gtk.ResponseType.OK) and (text != ''):
-            self.add_film(self, text)
+        if (response == Gtk.ResponseType.OK) and (name != '') and (description != ''):
+            self.add_film(self, name, description)
     
-    def add_film(self, widget, name):
-        self.film_liststore.append(list((name, "SampleDescription")))
+    def add_film(self, widget, name, description):
+        self.film_liststore.append(list((name, description)))
+        
+    def on_edit_clicked(self, widget):
+        selection = self.treeview.get_selection()
+        model, iter = selection.get_selected()
+        if iter is not None:
+            dialogEdit = Gtk.Dialog("Add", self,
+		                              Gtk.DialogFlags.MODAL,
+		                              ("OK", Gtk.ResponseType.OK,
+		                              "Cancel", Gtk.ResponseType.CANCEL))
+            box = dialogEdit.get_content_area()
+        
+            label = Gtk.Label("Name:")
+            label.set_justify(Gtk.Justification.LEFT)
+            box.pack_start(label, True, True, 0)
+        
+            entry_name = Gtk.Entry()
+            entry_name.set_text(model.get_value(iter,0))
+            box.pack_start(entry_name, True, True, 0)
+        
+            label = Gtk.Label("Description:")
+            label.set_justify(Gtk.Justification.LEFT)
+            box.pack_start(label, True, True, 0)
+        
+            entry_description = Gtk.Entry()
+            entry_description.set_text(model.get_value(iter,1))
+            box.pack_start(entry_description, True, True, 0)
+            dialogEdit.show_all()
+            
+            response = dialogEdit.run()
+            new_name = entry_name.get_text()
+            new_description = entry_description.get_text()
+            dialogEdit.destroy()
+            if (response == Gtk.ResponseType.OK) and (new_name != '') and (new_description != ''):
+                self.edit_film(self, new_name, new_description, iter)
+            
+    def edit_film(self, widget, name, description, iter):
+        self.film_liststore.set_value(iter, 0, name)
+        self.film_liststore.set_value(iter, 1, description)
 
     def on_remove_clicked(self, widget):
         selection = self.treeview.get_selection()
@@ -88,18 +151,6 @@ class TreeViewFilterWindow(Gtk.Window):
             if response == Gtk.ResponseType.OK:
                 model.remove(iter)
             warning.destroy()
-
-#class DialogAdd(Gtk.Dialog):
-#    def __init__(self, parent):
-#        Gtk.Dialog.__init__(self, "Add", parent, Gtk.DialogFlags.MODAL,
-#            ("Aceptar", Gtk.ResponseType.OK,
-#             "Cancelar", Gtk.ResponseType.CANCEL))
-#        self.set_default_size(150, 100)
-#        
-#        entry = Gtk.Entry()
-#        box = self.get_content_area()
-#        box.add(entry)
-#        self.show_all()
 
 class DialogWarning(Gtk.Dialog):
 
