@@ -3,19 +3,28 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-#list of films
-film_list = [("Ejemplo1", "Desc1"),
-                 ("Ejemplo2", "Desc2"),
-                 ("Ejemplo3", "Desc3")]
+class FilmFile():
+    def getFilmList(fileName):
+        filmList = []
+        f = open(fileName)
+        for line in f:
+            name,description = line.split('//')
+            filmList.append([name,description[:-1]])
+        f.close()
+        return filmList
+    
+    def writeFilmList(fileName, filmList):
+        f = open(fileName, 'w')
+        list_iter = filmList.get_iter_first()
+        while list_iter is not None:
+            name = filmList.get_value(list_iter, 0)
+            description = filmList.get_value(list_iter, 1)
+            f.write((name + '//' + description + '\n'))
+            list_iter = filmList.iter_next(list_iter)
+        f.close()
 
-#class FilmList():
-#    def __init__(self):
-#        self.filmList = Gtk.ListStore(str, str)
-#        for film_ref in film_list:
-#            self.filmList.append(list(film_ref))
-        
 
-class TreeViewFilterWindow(Gtk.Window):
+class AppWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title="Lista de peliculas")
@@ -28,46 +37,46 @@ class TreeViewFilterWindow(Gtk.Window):
         self.add(self.grid)
 
         #Creating the ListStore model
-        self.film_liststore = Gtk.ListStore(str, str)
-        for film_ref in film_list:
-            self.film_liststore.append(list(film_ref))
+        self.filmListstore = Gtk.ListStore(str, str)
+        filmList = FilmFile.getFilmList("films.txt")
+        for filmRef in filmList:
+            self.filmListstore.append(list(filmRef))
 
         #creating the treeview and adding the columns
-        self.treeview = Gtk.TreeView.new_with_model(self.film_liststore)
+        self.treeview = Gtk.TreeView.new_with_model(self.filmListstore)
 
-        for i, column_title in enumerate(["Nombre","Descripcion"]):
+        for i, columnTitle in enumerate(["Nombre","Descripcion"]):
             renderer = Gtk.CellRendererText()
-            renderer.set_property("editable",True)
-            column = Gtk.TreeViewColumn(column_title, renderer, text=i)
+            column = Gtk.TreeViewColumn(columnTitle, renderer, text=i)
             self.treeview.append_column(column)
-            renderer.connect("edited",self.text_edited, self.film_liststore, i)
+            renderer.connect("edited",self.text_edited, self.filmListstore, i)
             
 
         #setting up the layout and putting the treeview in a scrollwindow
-        self.scrollable_treelist = Gtk.ScrolledWindow()
-        self.scrollable_treelist.set_vexpand(True)
-        self.grid.attach(self.scrollable_treelist, 0, 0, 2, 5)
-        self.scrollable_treelist.add(self.treeview)
+        self.scrollableTreelist = Gtk.ScrolledWindow()
+        self.scrollableTreelist.set_vexpand(True)
+        self.grid.attach(self.scrollableTreelist, 0, 0, 2, 5)
+        self.scrollableTreelist.add(self.treeview)
         
         # Adding the Add button
-        self.add_button = Gtk.Button.new_with_label("Añadir")
-        self.add_button.connect("clicked", self.on_add_clicked)
-        self.grid.attach_next_to(self.add_button, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
+        self.addButton = Gtk.Button.new_with_label("Añadir")
+        self.addButton.connect("clicked", self.on_add_clicked)
+        self.grid.attach_next_to(self.addButton, self.scrollableTreelist, Gtk.PositionType.BOTTOM, 1, 1)
         
         # Adding the Edit button
-        self.edit_button = Gtk.Button.new_with_label("Editar")
-        self.edit_button.connect("clicked", self.on_edit_clicked)
-        self.grid.attach_next_to(self.edit_button, self.add_button, Gtk.PositionType.RIGHT, 1, 1)
+        self.editButton = Gtk.Button.new_with_label("Editar")
+        self.editButton.connect("clicked", self.on_edit_clicked)
+        self.grid.attach_next_to(self.editButton, self.addButton, Gtk.PositionType.RIGHT, 1, 1)
         
         # Adding the Remove button
-        self.remove_button = Gtk.Button.new_with_label("Eliminar")
-        self.remove_button.connect("clicked", self.on_remove_clicked)
-        self.grid.attach_next_to(self.remove_button, self.edit_button, Gtk.PositionType.RIGHT, 1, 1)
+        self.removeButton = Gtk.Button.new_with_label("Eliminar")
+        self.removeButton.connect("clicked", self.on_remove_clicked)
+        self.grid.attach_next_to(self.removeButton, self.editButton, Gtk.PositionType.RIGHT, 1, 1)
 
         self.show_all()
 
     def text_edited(self, widget, path, text, model=None, column=0):
-        self.film_liststore[path][column] = text
+        self.filmListstore[path][column] = text
         
     def on_add_clicked(self, widget): 
         dialogAdd = Gtk.Dialog("Add", self,
@@ -81,26 +90,26 @@ class TreeViewFilterWindow(Gtk.Window):
         label.set_justify(Gtk.Justification.LEFT)
         box.pack_start(label, True, True, 0)
         
-        entry_name = Gtk.Entry()
-        box.pack_start(entry_name, True, True, 0)
+        entryName = Gtk.Entry()
+        box.pack_start(entryName, True, True, 0)
         
         label = Gtk.Label("Description:")
         label.set_justify(Gtk.Justification.LEFT)
         box.pack_start(label, True, True, 0)
         
-        entry_description = Gtk.Entry()
-        box.pack_start(entry_description, True, True, 0)
+        entryDescription = Gtk.Entry()
+        box.pack_start(entryDescription, True, True, 0)
         dialogAdd.show_all()
 
         response = dialogAdd.run()
-        name = entry_name.get_text()
-        description = entry_description.get_text()
+        name = entryName.get_text()
+        description = entryDescription.get_text()
         dialogAdd.destroy()
         if (response == Gtk.ResponseType.OK) and (name != '') and (description != ''):
             self.add_film(self, name, description)
     
     def add_film(self, widget, name, description):
-        self.film_liststore.append(list((name, description)))
+        self.filmListstore.append(list((name, description)))
         
     def on_edit_clicked(self, widget):
         selection = self.treeview.get_selection()
@@ -116,29 +125,29 @@ class TreeViewFilterWindow(Gtk.Window):
             label.set_justify(Gtk.Justification.LEFT)
             box.pack_start(label, True, True, 0)
         
-            entry_name = Gtk.Entry()
-            entry_name.set_text(model.get_value(iter,0))
-            box.pack_start(entry_name, True, True, 0)
+            entryName = Gtk.Entry()
+            entryName.set_text(model.get_value(iter,0))
+            box.pack_start(entryName, True, True, 0)
         
             label = Gtk.Label("Description:")
             label.set_justify(Gtk.Justification.LEFT)
             box.pack_start(label, True, True, 0)
         
-            entry_description = Gtk.Entry()
-            entry_description.set_text(model.get_value(iter,1))
-            box.pack_start(entry_description, True, True, 0)
+            entryDescription = Gtk.Entry()
+            entryDescription.set_text(model.get_value(iter,1))
+            box.pack_start(entryDescription, True, True, 0)
             dialogEdit.show_all()
             
             response = dialogEdit.run()
-            new_name = entry_name.get_text()
-            new_description = entry_description.get_text()
+            newName = entryName.get_text()
+            newDescription = entryDescription.get_text()
             dialogEdit.destroy()
-            if (response == Gtk.ResponseType.OK) and (new_name != '') and (new_description != ''):
-                self.edit_film(self, new_name, new_description, iter)
+            if (response == Gtk.ResponseType.OK) and (newName != '') and (newDescription != ''):
+                self.edit_film(self, newName, newDescription, iter)
             
     def edit_film(self, widget, name, description, iter):
-        self.film_liststore.set_value(iter, 0, name)
-        self.film_liststore.set_value(iter, 1, description)
+        self.filmListstore.set_value(iter, 0, name)
+        self.filmListstore.set_value(iter, 1, description)
 
     def on_remove_clicked(self, widget):
         selection = self.treeview.get_selection()
@@ -167,8 +176,13 @@ class DialogWarning(Gtk.Dialog):
         box.add(label)
         self.show_all()
 
-win = TreeViewFilterWindow()
-win.connect("delete-event", Gtk.main_quit)
+def app_quit(self, widget):
+    FilmFile.writeFilmList("films.txt", win.filmListstore)
+    Gtk.main_quit()
+
+win = AppWindow()
+win.connect("delete-event", app_quit)
 win.show_all()
+
 Gtk.main()
 
