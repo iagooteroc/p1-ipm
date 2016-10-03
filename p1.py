@@ -15,8 +15,8 @@ class FilmFile():
         filmList = []
         f = open(fileName)
         for line in f:
-            name,description = line.split('//')
-            filmList.append([name,description[:-1]])
+            name, date, rating = line.split('//')
+            filmList.append([name,date,rating[:-1]])
         f.close()
         return filmList
     
@@ -25,8 +25,9 @@ class FilmFile():
         list_iter = filmList.get_iter_first()
         while list_iter is not None:
             name = filmList.get_value(list_iter, 0)
-            description = filmList.get_value(list_iter, 1)
-            f.write((name + '//' + description + '\n'))
+            date = filmList.get_value(list_iter, 1)
+            rating = filmList.get_value(list_iter, 2)
+            f.write((name + '//' + date + '//' + rating + '\n'))
             list_iter = filmList.iter_next(list_iter)
         f.close()
 
@@ -44,7 +45,7 @@ class AppWindow(Gtk.Window):
         self.add(self.grid)
 
         #Creating the ListStore model
-        self.filmListstore = Gtk.ListStore(str, str)
+        self.filmListstore = Gtk.ListStore(str, str, str)
         
         # Loading stored films
         filmList = FilmFile.getFilmList("films.txt")
@@ -56,7 +57,7 @@ class AppWindow(Gtk.Window):
         #creating the treeview and adding the columns
         self.treeview = Gtk.TreeView.new_with_model(self.filmListstore)
 
-        for i, columnTitle in enumerate(["Name","Description"]):
+        for i, columnTitle in enumerate(["Name","Date","Rating"]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(columnTitle, renderer, text=i)
             self.treeview.append_column(column)
@@ -100,27 +101,36 @@ class AppWindow(Gtk.Window):
         entryName = Gtk.Entry()
         box.pack_start(entryName, True, True, 0)
         
-        label = Gtk.Label("Description:")
+        label = Gtk.Label("Date:")
         label.set_justify(Gtk.Justification.LEFT)
         box.pack_start(label, True, True, 0)
         
-        entryDescription = Gtk.Entry()
-        box.pack_start(entryDescription, True, True, 0)
+        entryDate = Gtk.Entry()
+        box.pack_start(entryDate, True, True, 0)
+        dialogAdd.show_all()
+        
+        label = Gtk.Label("Rating:")
+        label.set_justify(Gtk.Justification.LEFT)
+        box.pack_start(label, True, True, 0)
+        
+        entryRating = Gtk.Entry()
+        box.pack_start(entryRating, True, True, 0)
         dialogAdd.show_all()
 
         response = dialogAdd.run()
         name = entryName.get_text()
-        description = entryDescription.get_text()
+        date = entryDate.get_text()
+        rating = entryRating.get_text()
         dialogAdd.destroy()
         
         if (response == Gtk.ResponseType.OK):
-                if (name != '') and (description != ''):
-                    self.add_film(self, name, description)
+                if (name != '') and (date != '') and (rating != ''):
+                    self.add_film(self, name, date, rating)
                 else:
                     self.error_dialog_blank()
     
-    def add_film(self, widget, name, description):
-        self.filmListstore.append(list((name, description)))
+    def add_film(self, widget, name, date, rating):
+        self.filmListstore.append(list((name, date, rating)))
         
     def on_edit_clicked(self, widget):
         selection = self.treeview.get_selection()
@@ -140,28 +150,39 @@ class AppWindow(Gtk.Window):
             entryName.set_text(model.get_value(iter,0))
             box.pack_start(entryName, True, True, 0)
         
-            label = Gtk.Label("Description:")
+            label = Gtk.Label("Date:")
             label.set_justify(Gtk.Justification.LEFT)
             box.pack_start(label, True, True, 0)
         
-            entryDescription = Gtk.Entry()
-            entryDescription.set_text(model.get_value(iter,1))
-            box.pack_start(entryDescription, True, True, 0)
+            entryDate = Gtk.Entry()
+            entryDate.set_text(model.get_value(iter,1))
+            box.pack_start(entryDate, True, True, 0)
+            dialogEdit.show_all()
+            
+            label = Gtk.Label("Rating:")
+            label.set_justify(Gtk.Justification.LEFT)
+            box.pack_start(label, True, True, 0)
+        
+            entryRating = Gtk.Entry()
+            entryRating.set_text(model.get_value(iter,2))
+            box.pack_start(entryRating, True, True, 0)
             dialogEdit.show_all()
             
             response = dialogEdit.run()
             newName = entryName.get_text()
-            newDescription = entryDescription.get_text()
+            newDate = entryDate.get_text()
+            newRating = entryRating.get_text()
             dialogEdit.destroy()
             if (response == Gtk.ResponseType.OK):
-                if (newName != '') and (newDescription != ''):
-                    self.edit_film(self, newName, newDescription, iter)
+                if (newName != '') and (newDate != '') and (newRating != ''):
+                    self.edit_film(self, newName, newDate, newRating, iter)
                 else:
                     self.error_dialog_blank()
             
-    def edit_film(self, widget, name, description, iter):
+    def edit_film(self, widget, name, date, rating, iter):
         self.filmListstore.set_value(iter, 0, name)
-        self.filmListstore.set_value(iter, 1, description)
+        self.filmListstore.set_value(iter, 1, date)
+        self.filmListstore.set_value(iter, 2, rating)
 
     def on_remove_clicked(self, widget):
         selection = self.treeview.get_selection()

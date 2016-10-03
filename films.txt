@@ -1,3 +1,3 @@
-Nombre1//Descrip1
-Nombre3//Descrip3
-aaaaaaa//bbbbbbbbb
+Nombre1//10-01-96//7
+Nombre2//22-03-06//8
+Nombre4//06-06-06//6.66
