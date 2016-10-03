@@ -38,7 +38,7 @@ class AppWindow(Gtk.Window):
         Gtk.Window.__init__(self, title="Lista de peliculas")
         self.set_border_width(10)
         self.resize(400, 300)
-        self.set_position(Gtk.WindowPosition.CENTER)
+        self.set_position(GTK_WIN_POS_CENTER)
 
         #Setting up the self.grid in which the elements are to be positionned
         #self.grid = Gtk.Grid()
