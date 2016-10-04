@@ -226,6 +226,5 @@ class DialogWarning(Gtk.Dialog):
 
 
 win = AppWindow()
-
 Gtk.main()
 
