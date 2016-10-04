@@ -2,6 +2,17 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+import locale
+import gettext
+import os
+
+locale.setlocale(locale.LC_ALL,'')
+LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locale")
+locale.bindtextdomain('app', LOCALE_DIR)
+gettext.bindtextdomain('app', LOCALE_DIR)
+gettext.textdomain('app')
+_ = gettext.gettext
+N_ = gettext.ngettext
 
 class FilmFile():
     def getFilmList(fileName):
@@ -26,10 +37,10 @@ class FilmFile():
 
 class AppActions():
     def on_add_clicked(widget, parent):
-        dialogAdd = Gtk.Dialog("Add", parent,
+        dialogAdd = Gtk.Dialog(_("Add"), parent,
 		                              Gtk.DialogFlags.MODAL,
-		                              ("OK", Gtk.ResponseType.OK,
-		                              "Cancel", Gtk.ResponseType.CANCEL))
+		                              (_("OK"), Gtk.ResponseType.OK,
+		                              _("Cancel"), Gtk.ResponseType.CANCEL))
         dialogAdd = DialogAdd(parent)
         response = dialogAdd.run()
         name = dialogAdd.entryName.get_text()
@@ -81,14 +92,14 @@ class AppActions():
             
     def error_dialog_blank(parent):
         dialogError = Gtk.MessageDialog(parent, 0, Gtk.MessageType.ERROR,
-            Gtk.ButtonsType.OK, "You must fill in all the fields")
+            Gtk.ButtonsType.OK, _("You must fill in all the fields"))
         dialogError.run()
         dialogError.destroy()
 
 class AppWindow(Gtk.Window):
 
     def __init__(self):
-        Gtk.Window.__init__(self, title="Lista de peliculas")
+        Gtk.Window.__init__(self, title=_("Film list"))
         self.set_border_width(10)
         self.resize(400, 300)
         self.set_position(Gtk.WindowPosition.CENTER)
@@ -110,7 +121,7 @@ class AppWindow(Gtk.Window):
         #creating the treeview and adding the columns
         self.treeview = Gtk.TreeView.new_with_model(self.filmListstore)
 
-        for i, columnTitle in enumerate(["Name","Date","Rating"]):
+        for i, columnTitle in enumerate([_("Name"),_("Date"),_("Rating")]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(columnTitle, renderer, text=i)
             self.treeview.append_column(column)
@@ -125,17 +136,17 @@ class AppWindow(Gtk.Window):
         self.box.pack_start(self.inbox, False, True, 0)
         
         # Adding the Add button
-        self.addButton = Gtk.Button.new_with_label("Add")
+        self.addButton = Gtk.Button.new_with_label(_("Add"))
         self.addButton.connect("clicked", AppActions.on_add_clicked, self)
         self.inbox.pack_start(self.addButton, True, True, 0)
         
         # Adding the Edit button
-        self.editButton = Gtk.Button.new_with_label("Edit")
+        self.editButton = Gtk.Button.new_with_label(_("Edit"))
         self.editButton.connect("clicked", AppActions.on_edit_clicked, self)
         self.inbox.pack_start(self.editButton, True, True, 0)
         
         # Adding the Remove button
-        self.removeButton = Gtk.Button.new_with_label("Remove")
+        self.removeButton = Gtk.Button.new_with_label(_("Remove"))
         self.removeButton.connect("clicked", AppActions.on_remove_clicked, self)
         self.inbox.pack_start(self.removeButton, True, True, 0)
 
@@ -148,12 +159,12 @@ class AppWindow(Gtk.Window):
 
 class DialogEdit(Gtk.Dialog):
     def __init__(self, parent, model, iter):
-        Gtk.Dialog.__init__(self, "Edit", parent, Gtk.DialogFlags.MODAL,
-            ("OK", Gtk.ResponseType.OK,
-             "Cancel", Gtk.ResponseType.CANCEL))
+        Gtk.Dialog.__init__(self, _("Edit"), parent, Gtk.DialogFlags.MODAL,
+            (_("OK"), Gtk.ResponseType.OK,
+             _("Cancel"), Gtk.ResponseType.CANCEL))
         box = self.get_content_area()
         
-        label = Gtk.Label("Name:")
+        label = Gtk.Label(_("Name:"))
         label.set_justify(Gtk.Justification.LEFT)
         box.pack_start(label, True, True, 0)
         
@@ -161,7 +172,7 @@ class DialogEdit(Gtk.Dialog):
         self.entryName.set_text(model.get_value(iter,0))
         box.pack_start(self.entryName, True, True, 0)
         
-        label = Gtk.Label("Date:")
+        label = Gtk.Label(_("Date:"))
         label.set_justify(Gtk.Justification.LEFT)
         box.pack_start(label, True, True, 0)
         
@@ -169,7 +180,7 @@ class DialogEdit(Gtk.Dialog):
         self.entryDate.set_text(model.get_value(iter,1))
         box.pack_start(self.entryDate, True, True, 0)
             
-        label = Gtk.Label("Rating:")
+        label = Gtk.Label(_("Rating:"))
         label.set_justify(Gtk.Justification.LEFT)
         box.pack_start(label, True, True, 0)
         
@@ -180,20 +191,20 @@ class DialogEdit(Gtk.Dialog):
         
 class DialogAdd(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, "Add", parent, Gtk.DialogFlags.MODAL,
-            ("OK", Gtk.ResponseType.OK,
-             "Cancel", Gtk.ResponseType.CANCEL))
+        Gtk.Dialog.__init__(self, _("Add"), parent, Gtk.DialogFlags.MODAL,
+            (_("OK"), Gtk.ResponseType.OK,
+             _("Cancel"), Gtk.ResponseType.CANCEL))
              
         box = self.get_content_area()
         
-        label = Gtk.Label("Name:")
+        label = Gtk.Label(_("Name:"))
         label.set_justify(Gtk.Justification.LEFT)
         box.pack_start(label, True, True, 0)
         
         self.entryName = Gtk.Entry()
         box.pack_start(self.entryName, True, True, 0)
         
-        label = Gtk.Label("Date:")
+        label = Gtk.Label(_("Date:"))
         label.set_justify(Gtk.Justification.LEFT)
         box.pack_start(label, True, True, 0)
         
@@ -201,7 +212,7 @@ class DialogAdd(Gtk.Dialog):
         box.pack_start(self.entryDate, True, True, 0)
         self.show_all()
         
-        label = Gtk.Label("Rating:")
+        label = Gtk.Label(_("Rating:"))
         label.set_justify(Gtk.Justification.LEFT)
         box.pack_start(label, True, True, 0)
         
@@ -212,13 +223,13 @@ class DialogAdd(Gtk.Dialog):
 class DialogWarning(Gtk.Dialog):
 
     def __init__(self, parent, text):
-        Gtk.Dialog.__init__(self, "Warning", parent, Gtk.DialogFlags.MODAL,
-            ("OK", Gtk.ResponseType.OK,
-             "Cancel", Gtk.ResponseType.CANCEL))
+        Gtk.Dialog.__init__(self, _("Warning"), parent, Gtk.DialogFlags.MODAL,
+            (_("OK"), Gtk.ResponseType.OK,
+             _("Cancel"), Gtk.ResponseType.CANCEL))
 
         self.set_default_size(150, 100)
 
-        label = Gtk.Label("¿Seguro que desea eliminar la pelcula ''" + text+ "''?")
+        label = Gtk.Label(_("Are you sure you want to delete ''") + text+ "''?")
 
         box = self.get_content_area()
         box.add(label)

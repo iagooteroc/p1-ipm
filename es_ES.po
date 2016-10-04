@@ -1,0 +1,79 @@
+# Spanish translations for p package
+# Traducciones al español para el paquete p.
+# Copyright (C) 2016 THE p'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the p package.
+# "" <koi@koipc>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: p 1-ipm-16-17-iagooteroc\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-10-04 17:22+0200\n"
+"PO-Revision-Date: 2016-10-04 17:26+0200\n"
+"Last-Translator: \"\" <koi@koipc>\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: p1.py:40 p1.py:139 p1.py:194
+msgid "Add"
+msgstr "Añadir"
+
+#: p1.py:42 p1.py:163 p1.py:195 p1.py:227
+msgid "OK"
+msgstr "Aceptar"
+
+#: p1.py:43 p1.py:164 p1.py:196 p1.py:228
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: p1.py:95
+msgid "You must fill in all the fields"
+msgstr "Debes rellenar todos los campos"
+
+#: p1.py:102
+msgid "Film list"
+msgstr "Lista de películas"
+
+#: p1.py:124
+msgid "Name"
+msgstr "Nombre"
+
+#: p1.py:124
+msgid "Date"
+msgstr "Fecha"
+
+#: p1.py:124
+msgid "Rating"
+msgstr "Puntuación"
+
+#: p1.py:144 p1.py:162
+msgid "Edit"
+msgstr "Editar"
+
+#: p1.py:149
+msgid "Remove"
+msgstr "Eliminar"
+
+#: p1.py:167 p1.py:200
+msgid "Name:"
+msgstr "Nombre:"
+
+#: p1.py:175 p1.py:207
+msgid "Date:"
+msgstr "Fecha:"
+
+#: p1.py:183 p1.py:215
+msgid "Rating:"
+msgstr "Puntuación:"
+
+#: p1.py:226
+msgid "Warning"
+msgstr "Aviso"
+
+#: p1.py:232
+msgid "Are you sure you want to delete ''"
+msgstr "¿Seguro que deseas eliminar ''"
