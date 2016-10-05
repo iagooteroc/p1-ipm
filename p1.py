@@ -8,9 +8,9 @@ import os
 
 locale.setlocale(locale.LC_ALL,'')
 LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locale")
-locale.bindtextdomain('app', LOCALE_DIR)
-gettext.bindtextdomain('app', LOCALE_DIR)
-gettext.textdomain('app')
+locale.bindtextdomain('p1', LOCALE_DIR)
+gettext.bindtextdomain('p1', LOCALE_DIR)
+gettext.textdomain('p1')
 _ = gettext.gettext
 N_ = gettext.ngettext
 
