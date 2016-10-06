@@ -15,15 +15,18 @@ _ = gettext.gettext
 N_ = gettext.ngettext
 
 class FilmFile():
+    # devuelve la lista de peliculas desde un archivo de texto
     def getFilmList(fileName):
         filmList = []
         f = open(fileName)
         for line in f:
+            #divide cada linea en partes
             name, date, rating, state = line.split('//')
             filmList.append([name,date,rating, state[:-1]])
         f.close()
         return filmList
     
+    # escribe en un archivo de texto los cambios realizados en la lista
     def writeFilmList(fileName, filmList):
         f = open(fileName, 'w')
         list_iter = filmList.get_iter_first()
@@ -37,6 +40,7 @@ class FilmFile():
         f.close()
 
 class AppActions():
+    # lo que hace el boton Add cuando se pulsa
     def on_add_clicked(widget, parent):
         dialogAdd = Gtk.Dialog(_("Add"), parent,
 		                              Gtk.DialogFlags.MODAL,
@@ -54,11 +58,12 @@ class AppActions():
                     AppActions.add_film(parent, widget, name, date, rating)
                 else:
                     AppActions.error_dialog_blank(parent)
-
+    # funcion de anhadir una pelicula
     def add_film(parent, widget, name, date, rating):
         model = parent.filmModel.get_model()
         model.append(list((name, date, rating, False, "0")))
-
+    
+    # lo que hace el boton edit cuando se pulsa
     def on_edit_clicked(widget, parent):
         selection = parent.treeview.get_selection()
         model, iter = selection.get_selected()
@@ -74,12 +79,14 @@ class AppActions():
                     AppActions.edit_film(parent, widget, newName, newDate, newRating, iter)
                 else:
                     AppActions.error_dialog_blank(parent)
-                    
+    
+    # funcion de editar una pelicula                
     def edit_film(parent, widget, name, date, rating, iter):
         parent.filmModel.set_value(iter, 0, name)
         parent.filmModel.set_value(iter, 1, date)
         parent.filmModel.set_value(iter, 2, rating)
-        
+    
+    # lo que hace el boton remove cuando se pulsa    
     def on_remove_clicked(widget, parent):
         selection = parent.treeview.get_selection()    # TreeSelection
         filmModel, iter = selection.get_selected()     # TreeModelFilter, iter
@@ -98,16 +105,19 @@ class AppActions():
             if response == Gtk.ResponseType.OK:
                 model.remove(iter)
             warning.destroy()
-            
+    
+    # ventana modal de mensaje de error        
     def error_dialog_blank(parent):
         dialogError = Gtk.MessageDialog(parent, 0, Gtk.MessageType.ERROR,
             Gtk.ButtonsType.OK, _("You must fill in all the fields"))
         dialogError.run()
         dialogError.destroy()
     
+    # lo que hace la celda cuando se pulsa
     def on_cell_toggled(widget, path, parent):
         parent.filmModel[path][3] = not parent.filmModel[path][3]
-
+    
+    # lo que hace el combo box cuando se pulsa
     def on_combo_changed(combo, parent):
         treeIter = combo.get_active_iter()
         model = combo.get_model()
@@ -122,7 +132,8 @@ class AppWindow(Gtk.Window):
         self.set_border_width(10)
         self.resize(400, 300)
         self.set_position(Gtk.WindowPosition.CENTER)
-
+        
+        # caja principal
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.inbox = Gtk.Box()
         self.add(self.box)
@@ -196,7 +207,7 @@ class AppWindow(Gtk.Window):
 
         self.connect("delete-event", self.app_quit)
         self.show_all()
-            
+    # funcion de filtrar las peliculas por Todas, Vistas o Por ver        
     def film_filter_func(self, model, iter, data):
         print("Filtering...")
         treeIter = self.filterCombo.get_active_iter()
@@ -214,7 +225,7 @@ class AppWindow(Gtk.Window):
                 return True
         else:
             return False
-
+    # funcion que guarda los cambios en el archivo de texto
     def app_quit(self, parent, widget):
         FilmFile.writeFilmList("films.txt", self.filmListstore)
         Gtk.main_quit()
