@@ -19,8 +19,8 @@ class FilmFile():
         filmList = []
         f = open(fileName)
         for line in f:
-            name, date, rating = line.split('//')
-            filmList.append([name,date,rating[:-1]])
+            name, date, rating, state = line.split('//')
+            filmList.append([name,date,rating, state[:-1]])
         f.close()
         return filmList
     
@@ -31,7 +31,8 @@ class FilmFile():
             name = filmList.get_value(list_iter, 0)
             date = filmList.get_value(list_iter, 1)
             rating = filmList.get_value(list_iter, 2)
-            f.write((name + '//' + date + '//' + rating + '\n'))
+            state = filmList.get_value(list_iter, 4)
+            f.write((name + '//' + date + '//' + rating + '//' + state + '\n'))
             list_iter = filmList.iter_next(list_iter)
         f.close()
 
@@ -55,7 +56,8 @@ class AppActions():
                     AppActions.error_dialog_blank(parent)
 
     def add_film(parent, widget, name, date, rating):
-        parent.filmListstore.append(list((name, date, rating)))
+        model = parent.filmModel.get_model()
+        model.append(list((name, date, rating, False, "0")))
 
     def on_edit_clicked(widget, parent):
         selection = parent.treeview.get_selection()
@@ -74,13 +76,20 @@ class AppActions():
                     AppActions.error_dialog_blank(parent)
                     
     def edit_film(parent, widget, name, date, rating, iter):
-        parent.filmListstore.set_value(iter, 0, name)
-        parent.filmListstore.set_value(iter, 1, date)
-        parent.filmListstore.set_value(iter, 2, rating)
+        parent.filmModel.set_value(iter, 0, name)
+        parent.filmModel.set_value(iter, 1, date)
+        parent.filmModel.set_value(iter, 2, rating)
         
     def on_remove_clicked(widget, parent):
-        selection = parent.treeview.get_selection()
-        model, iter = selection.get_selected()
+        selection = parent.treeview.get_selection()    # TreeSelection
+        filmModel, iter = selection.get_selected()     # TreeModelFilter, iter
+        pathList = selection.get_selected_rows() # GList with paths from TreeModelFilter
+        firstPath = pathList[0]    # WHY THE FUCK IS PATHLIST A TUPLE
+        #path = pathList.first()  # TreePath IT SHOULD BE
+        # WHAT THE FUCK IS GI.OVERRIDES.GTK.TREEMODELFILTER AND WHY FIRSTPATH IS THAT AND NOT A TREEPATH
+        path = filmModel.convert_path_to_child_path(firstPath) # path from TreeModel (ListStore?)
+        model = filmModel.get_model()    # TreeModel or ListStore?
+        model.get_iter(iter, path)    # iter from TreeModel
         if iter is not None:
             text = model.get_value(iter,0)
             warning = DialogWarning(parent, text)
@@ -95,6 +104,16 @@ class AppActions():
             Gtk.ButtonsType.OK, _("You must fill in all the fields"))
         dialogError.run()
         dialogError.destroy()
+    
+    def on_cell_toggled(widget, path, parent):
+        parent.filmModel[path][3] = not parent.filmModel[path][3]
+
+    def on_combo_changed(combo, parent):
+        treeIter = combo.get_active_iter()
+        model = combo.get_model()
+        parent.filmModel.refilter()
+        print(model[treeIter][0])
+
 
 class AppWindow(Gtk.Window):
 
@@ -107,26 +126,51 @@ class AppWindow(Gtk.Window):
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.inbox = Gtk.Box()
         self.add(self.box)
+        
+        # Creating the filterCombo
+        self.filterCombo = Gtk.ComboBoxText()
+        self.filterCombo.connect("changed", AppActions.on_combo_changed, self)
+        self.filterCombo.set_entry_text_column(0)
+        
+        # Adding the filter names
+        filters = ["All movies", "Seen", "Plan to watch"]
+        for filterName in filters:
+            self.filterCombo.append_text(filterName)
 
-        #Creating the ListStore model
-        self.filmListstore = Gtk.ListStore(str, str, str)
+        self.filterCombo.set_active(0)
+        self.box.pack_start(self.filterCombo, False, True, 0)
+
+        #Creating the filmListstore model
+        self.filmListstore = Gtk.ListStore(str, str, str, bool, str)
         
         # Loading stored films
         filmList = FilmFile.getFilmList("films.txt")
         
         # Adding them into filmListstore
         for filmRef in filmList:
-            self.filmListstore.append(list(filmRef))
+            filmValues = filmRef[:-1] # Name, Date, Rating
+            filmValues.append(False)
+            filmValues.append(filmRef[-1]) # Status
+            print(filmValues)
+            self.filmListstore.append(filmValues)
 
+        self.filmModel = self.filmListstore.filter_new()
+        self.filmModel.set_visible_func(self.film_filter_func)
         #creating the treeview and adding the columns
-        self.treeview = Gtk.TreeView.new_with_model(self.filmListstore)
+        self.treeview = Gtk.TreeView.new_with_model(self.filmModel)
 
         for i, columnTitle in enumerate([_("Name"),_("Date"),_("Rating")]):
-            renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(columnTitle, renderer, text=i)
+            rendererText = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(columnTitle, rendererText, text=i)
             self.treeview.append_column(column)
             
-
+        
+        rendererToggle = Gtk.CellRendererToggle()
+        rendererToggle.connect("toggled", AppActions.on_cell_toggled, self)
+        columnToggle = Gtk.TreeViewColumn("Toggle", rendererToggle, active=3)
+        self.treeview.append_column(columnToggle)
+        
+        
         #setting up the layout and putting the treeview in a scrollwindow
         self.scrollableTreelist = Gtk.ScrolledWindow()
         self.scrollableTreelist.set_vexpand(True)
@@ -152,6 +196,24 @@ class AppWindow(Gtk.Window):
 
         self.connect("delete-event", self.app_quit)
         self.show_all()
+            
+    def film_filter_func(self, model, iter, data):
+        print("Filtering...")
+        treeIter = self.filterCombo.get_active_iter()
+        comboModel = self.filterCombo.get_model()
+        movieFilter = comboModel[treeIter][0]
+        if (movieFilter == "All movies"):
+            return True
+        if (movieFilter == "Seen"):
+            if (model.get_value(iter, 4) == "0"):
+                return True
+            else:
+                return False
+        if (movieFilter == "Plan to watch"):
+            if (model[iter][4] == "1"):
+                return True
+        else:
+            return False
 
     def app_quit(self, parent, widget):
         FilmFile.writeFilmList("films.txt", self.filmListstore)
