@@ -40,6 +40,32 @@ class FilmFile():
         f.close()
 
 class AppActions():
+    # Lo que hace el boton Select/Deselect All cuando se pulsa
+    def on_select_all_clicked(widget, parent):
+        model = parent.filmModel
+        iter = model.get_iter_first()
+        if parent.selectedAll is False:
+            while iter is not None:
+                model.set_value(iter, 3, True)
+                iter = model.iter_next(iter)
+        else:
+            while iter is not None:
+                model.set_value(iter, 3, False)
+                iter = model.iter_next(iter)
+        parent.selectedAll = not parent.selectedAll
+    
+    # Lo que hace el boton Mark as Seen cuando se pulsa
+    def on_seen_clicked(widget, parent):
+        selectedIterators = AppActions.get_cell_selected(parent.filmModel)
+        for iter in selectedIterators:
+            parent.filmModel.set_value(iter, 4, "0")
+    
+    # Lo que hace el boton Mark as Plan to watch cuando se pulsa
+    def on_plan_clicked(widget, parent):
+        selectedIterators = AppActions.get_cell_selected(parent.filmModel)
+        for iter in selectedIterators:
+            parent.filmModel.set_value(iter, 4, "1")
+    
     # lo que hace el boton Add cuando se pulsa
     def on_add_clicked(widget, parent):
         dialogAdd = Gtk.Dialog(_("Add"), parent,
@@ -58,6 +84,7 @@ class AppActions():
                     AppActions.add_film(parent, widget, name, date, rating)
                 else:
                     AppActions.error_dialog_blank(parent)
+
     # funcion de anhadir una pelicula
     def add_film(parent, widget, name, date, rating):
         model = parent.filmModel.get_model()
@@ -88,24 +115,35 @@ class AppActions():
     
     # lo que hace el boton remove cuando se pulsa    
     def on_remove_clicked(widget, parent):
-        selection = parent.treeview.get_selection()    # TreeSelection
-        model, iter = selection.get_selected()     # TreeModelFilter, iter
-        #pathList = selection.get_selected_rows() # GList with paths from TreeModelFilter
-        #firstPath = pathList[1]    # WHY THE FUCK IS PATHLIST A TUPLE
-        #path = pathList.first()  # TreePath IT SHOULD BE
-        # WHAT THE FUCK IS GI.OVERRIDES.GTK.TREEMODELFILTER AND WHY FIRSTPATH IS THAT AND NOT A TREEPATH
-        #path = filmModel.convert_path_to_child_path(firstPath) # path from TreeModel (ListStore?)
-        #model = filmModel.get_model()    # TreeModel or ListStore?
-        #model.get_iter(iter, path)    # iter from TreeModel
-        if iter is not None:
-            name = model.get_value(iter,0)
-            warning = DialogWarning(parent, name)
+        selectedIterators = AppActions.get_cell_selected(parent.filmListstore)
+        num = len(selectedIterators)
+        if (num == 1):
+            name = parent.filmListstore.get_value((selectedIterators[0]), 0)
+            warning = DialogWarningSingle(parent, name)
             response = warning.run()
-            
-            if response == Gtk.ResponseType.OK:
-                AppActions.remove_film(parent, name)
-            warning.destroy()
+        elif (num > 1):
+            warning = DialogWarningMultiple(parent, num)
+            response = warning.run()
+        else:
+            return
+        if response == Gtk.ResponseType.OK:
+            for iter in selectedIterators:
+                parent.filmListstore.remove(iter)
+        warning.destroy()
     
+    # devuelve los iteradores de las peliculas marcadas    
+    def get_cell_selected(model):
+        selectedIterators = []
+        iter = model.get_iter_first()
+        while iter is not None:
+            selected = model.get_value(iter, 3)
+            if selected:
+                selectedIterators.append(iter)
+            iter = model.iter_next(iter)
+        return selectedIterators
+        
+        
+    # elimina la pelicula con el nombre name
     def remove_film(parent, name):
         iter = AppActions.search_film(parent, name)
         if iter is not None:
@@ -113,6 +151,7 @@ class AppActions():
             return True
         return False
     
+    # busca el iterador de la peli en el ListStore por nombre
     def search_film(parent, name):
         iter = parent.filmListstore.get_iter_first()
         while iter is not None:
@@ -139,7 +178,7 @@ class AppActions():
         model = combo.get_model()
         parent.filmModel.refilter()
         print(model[treeIter][0])
-
+        
 
 class AppWindow(Gtk.Window):
 
@@ -154,20 +193,7 @@ class AppWindow(Gtk.Window):
         self.inbox = Gtk.Box()
         self.add(self.box)
         
-        # Creating the filterCombo
-        self.filterCombo = Gtk.ComboBoxText()
-        self.filterCombo.connect("changed", AppActions.on_combo_changed, self)
-        self.filterCombo.set_entry_text_column(0)
-        
-        # Adding the filter names
-        filters = ["All movies", "Seen", "Plan to watch"]
-        for filterName in filters:
-            self.filterCombo.append_text(filterName)
-
-        self.filterCombo.set_active(0)
-        self.box.pack_start(self.filterCombo, False, True, 0)
-
-        #Creating the filmListstore model
+        # Creating the filmListstore model
         self.filmListstore = Gtk.ListStore(str, str, str, bool, str)
         
         # Loading stored films
@@ -181,9 +207,30 @@ class AppWindow(Gtk.Window):
             print(filmValues)
             self.filmListstore.append(filmValues)
 
+        # Creating the TreeModelFilter from filmListstore
         self.filmModel = self.filmListstore.filter_new()
         self.filmModel.set_visible_func(self.film_filter_func)
-        #creating the treeview and adding the columns
+        
+        # Creating the filterCombo
+        self.filterCombo = Gtk.ComboBoxText()
+        self.filterCombo.connect("changed", AppActions.on_combo_changed, self)
+        self.filterCombo.set_entry_text_column(0)
+        
+        # Adding the filter names
+        filters = ["All movies", "Seen", "Plan to watch"]
+        for filterName in filters:
+            self.filterCombo.append_text(filterName)
+
+        self.filterCombo.set_active(0)
+        self.box.pack_start(self.filterCombo, False, True, 0)
+        
+        # Adding the Select/Deselect All button
+        self.selectAllButton = Gtk.Button.new_with_label(_("Select/Deselect All"))
+        self.selectAllButton.connect("clicked", AppActions.on_select_all_clicked, self)
+        self.selectedAll = False
+        self.box.pack_start(self.selectAllButton, False, True, 0)
+        
+        # Creating the treeview and adding the columns
         self.treeview = Gtk.TreeView.new_with_model(self.filmModel)
 
         for i, columnTitle in enumerate([_("Name"),_("Date"),_("Rating")]):
@@ -191,12 +238,11 @@ class AppWindow(Gtk.Window):
             column = Gtk.TreeViewColumn(columnTitle, rendererText, text=i)
             self.treeview.append_column(column)
             
-        
+        # Creating the checkbox column
         rendererToggle = Gtk.CellRendererToggle()
         rendererToggle.connect("toggled", AppActions.on_cell_toggled, self)
         columnToggle = Gtk.TreeViewColumn("Toggle", rendererToggle, active=3)
         self.treeview.append_column(columnToggle)
-        
         
         #setting up the layout and putting the treeview in a scrollwindow
         self.scrollableTreelist = Gtk.ScrolledWindow()
@@ -220,12 +266,22 @@ class AppWindow(Gtk.Window):
         self.removeButton = Gtk.Button.new_with_label(_("Remove"))
         self.removeButton.connect("clicked", AppActions.on_remove_clicked, self)
         self.inbox.pack_start(self.removeButton, True, True, 0)
+        
+        # Adding the Mark as Seen button (provisional)
+        self.seenButton = Gtk.Button.new_with_label("Mark as Seen")
+        self.seenButton.connect("clicked", AppActions.on_seen_clicked, self)
+        self.inbox.pack_start(self.seenButton, True, True, 0)
+        
+        # Adding the Mark as Plan to watch button (provisional)
+        self.planButton = Gtk.Button.new_with_label("Mark as Plan to watch")
+        self.planButton.connect("clicked", AppActions.on_plan_clicked, self)
+        self.inbox.pack_start(self.planButton, True, True, 0)
 
         self.connect("delete-event", self.app_quit)
         self.show_all()
     # funcion de filtrar las peliculas por Todas, Vistas o Por ver        
     def film_filter_func(self, model, iter, data):
-        print("Filtering...")
+        #print("Filtering...")
         treeIter = self.filterCombo.get_active_iter()
         comboModel = self.filterCombo.get_model()
         movieFilter = comboModel[treeIter][0]
@@ -241,6 +297,7 @@ class AppWindow(Gtk.Window):
                 return True
         else:
             return False
+            
     # funcion que guarda los cambios en el archivo de texto
     def app_quit(self, parent, widget):
         FilmFile.writeFilmList("films.txt", self.filmListstore)
@@ -309,7 +366,7 @@ class DialogAdd(Gtk.Dialog):
         box.pack_start(self.entryRating, True, True, 0)
         self.show_all()
 
-class DialogWarning(Gtk.Dialog):
+class DialogWarningSingle(Gtk.Dialog):
 
     def __init__(self, parent, text):
         Gtk.Dialog.__init__(self, _("Warning"), parent, Gtk.DialogFlags.MODAL,
@@ -319,6 +376,21 @@ class DialogWarning(Gtk.Dialog):
         self.set_default_size(150, 100)
 
         label = Gtk.Label(_("Are you sure you want to delete ''") + text+ "''?")
+
+        box = self.get_content_area()
+        box.add(label)
+        self.show_all()
+
+class DialogWarningMultiple(Gtk.Dialog):
+
+    def __init__(self, parent, num):
+        Gtk.Dialog.__init__(self, _("Warning"), parent, Gtk.DialogFlags.MODAL,
+            (_("OK"), Gtk.ResponseType.OK,
+             _("Cancel"), Gtk.ResponseType.CANCEL))
+
+        self.set_default_size(150, 100)
+
+        label = Gtk.Label(_("Are you sure you want to delete ") + str(num) + " films?")
 
         box = self.get_content_area()
         box.add(label)
