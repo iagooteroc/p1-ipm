@@ -76,12 +76,12 @@ class AppActions():
             dialogEdit.destroy()
             if (response == Gtk.ResponseType.OK):
                 if (newName != '') and (newDate != '') and (newRating != ''):
-                    AppActions.edit_film(parent, widget, newName, newDate, newRating, iter)
+                    AppActions.edit_film(parent, newName, newDate, newRating, iter)
                 else:
                     AppActions.error_dialog_blank(parent)
     
     # funcion de editar una pelicula                
-    def edit_film(parent, widget, name, date, rating, iter):
+    def edit_film(parent, name, date, rating, iter):
         parent.filmModel.set_value(iter, 0, name)
         parent.filmModel.set_value(iter, 1, date)
         parent.filmModel.set_value(iter, 2, rating)
@@ -89,22 +89,38 @@ class AppActions():
     # lo que hace el boton remove cuando se pulsa    
     def on_remove_clicked(widget, parent):
         selection = parent.treeview.get_selection()    # TreeSelection
-        filmModel, iter = selection.get_selected()     # TreeModelFilter, iter
-        pathList = selection.get_selected_rows() # GList with paths from TreeModelFilter
-        firstPath = pathList[0]    # WHY THE FUCK IS PATHLIST A TUPLE
+        model, iter = selection.get_selected()     # TreeModelFilter, iter
+        #pathList = selection.get_selected_rows() # GList with paths from TreeModelFilter
+        #firstPath = pathList[1]    # WHY THE FUCK IS PATHLIST A TUPLE
         #path = pathList.first()  # TreePath IT SHOULD BE
         # WHAT THE FUCK IS GI.OVERRIDES.GTK.TREEMODELFILTER AND WHY FIRSTPATH IS THAT AND NOT A TREEPATH
-        path = filmModel.convert_path_to_child_path(firstPath) # path from TreeModel (ListStore?)
-        model = filmModel.get_model()    # TreeModel or ListStore?
-        model.get_iter(iter, path)    # iter from TreeModel
+        #path = filmModel.convert_path_to_child_path(firstPath) # path from TreeModel (ListStore?)
+        #model = filmModel.get_model()    # TreeModel or ListStore?
+        #model.get_iter(iter, path)    # iter from TreeModel
         if iter is not None:
-            text = model.get_value(iter,0)
-            warning = DialogWarning(parent, text)
+            name = model.get_value(iter,0)
+            warning = DialogWarning(parent, name)
             response = warning.run()
             
             if response == Gtk.ResponseType.OK:
-                model.remove(iter)
+                AppActions.remove_film(parent, name)
             warning.destroy()
+    
+    def remove_film(parent, name):
+        iter = AppActions.search_film(parent, name)
+        if iter is not None:
+            parent.filmListstore.remove(iter)
+            return True
+        return False
+    
+    def search_film(parent, name):
+        iter = parent.filmListstore.get_iter_first()
+        while iter is not None:
+            storedName = parent.filmListstore.get_value(iter, 0)
+            if (storedName == name):
+                break
+            iter = parent.filmListstore.iter_next(iter)
+        return iter
     
     # ventana modal de mensaje de error        
     def error_dialog_blank(parent):
