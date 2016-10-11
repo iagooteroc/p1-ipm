@@ -56,15 +56,31 @@ class AppActions():
     
     # Lo que hace el boton Mark as Seen cuando se pulsa
     def on_seen_clicked(widget, parent):
-        selectedIterators = AppActions.get_cell_selected(parent.filmModel)
-        for iter in selectedIterators:
+        iter = AppActions.get_first_selected(parent.filmModel)
+        while iter is not None:
+            parent.filmModel.set_value(iter, 3, False)
             parent.filmModel.set_value(iter, 4, "0")
+            #AppActions.mark_as_seen(iter, parent)
+            iter = AppActions.get_first_selected(parent.filmModel)
+    
+    def mark_as_seen(iter, parent):
+        parent.filmModel.set_value(iter, 4, "0")
+        parent.filmModel.refilter()
     
     # Lo que hace el boton Mark as Plan to watch cuando se pulsa
     def on_plan_clicked(widget, parent):
-        selectedIterators = AppActions.get_cell_selected(parent.filmModel)
-        for iter in selectedIterators:
+        iter = AppActions.get_first_selected(parent.filmModel)
+        while iter is not None:
+            parent.filmModel.set_value(iter, 3, False)
             parent.filmModel.set_value(iter, 4, "1")
+            iter = AppActions.get_first_selected(parent.filmModel)
+            #AppActions.mark_as_plan(iter, parent)
+            
+            #parent.filmModel.refilter()
+    
+    def mark_as_plan(iter, parent):
+        parent.filmModel.set_value(iter, 4, "1")
+        parent.filmModel.refilter()
     
     # lo que hace el boton Add cuando se pulsa
     def on_add_clicked(widget, parent):
@@ -131,18 +147,28 @@ class AppActions():
                 parent.filmListstore.remove(iter)
         warning.destroy()
     
+    # ---Hemos dejado de usarlo---
     # devuelve los iteradores de las peliculas marcadas    
-    def get_cell_selected(model):
-        selectedIterators = []
+    #def get_cell_selected(model):
+    #    selectedIterators = []
+    #    iter = model.get_iter_first()
+    #    while iter is not None:
+    #        selected = model.get_value(iter, 3)
+    #        if selected:
+    #            selectedIterators.append(iter)
+    #        iter = model.iter_next(iter)
+    #    return selectedIterators
+        
+    # devuelve el iterador de la primera fila marcada
+    def get_first_selected(model):
         iter = model.get_iter_first()
         while iter is not None:
             selected = model.get_value(iter, 3)
             if selected:
-                selectedIterators.append(iter)
+                return iter
             iter = model.iter_next(iter)
-        return selectedIterators
-        
-        
+        return None
+    
     # elimina la pelicula con el nombre name
     def remove_film(parent, name):
         iter = AppActions.search_film(parent, name)
