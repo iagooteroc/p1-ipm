@@ -67,11 +67,6 @@ class AppActions():
             #AppActions.mark_as_seen(iter, parent)
             iter = AppActions.get_first_selected(parent.filmModel)
     
-    # Marcar como Vista
-    def mark_as_seen(iter, parent):
-        parent.filmModel.set_value(iter, 4, "1")
-        parent.filmModel.refilter()
-    
     # Lo que hace el boton Mark as Plan to watch cuando se pulsa
     def on_plan_clicked(widget, parent):
         iter = AppActions.get_first_selected(parent.filmModel)
@@ -79,15 +74,7 @@ class AppActions():
             parent.filmModel.set_value(iter, 0, False)
             parent.filmModel.set_value(iter, 4, "2")
             iter = AppActions.get_first_selected(parent.filmModel)
-            #AppActions.mark_as_plan(iter, parent)
-            
-            #parent.filmModel.refilter()
-    
-    # Marcar como Pendiente
-    def mark_as_plan(iter, parent):
-        parent.filmModel.set_value(iter, 4, "2")
-        parent.filmModel.refilter()
-    
+
     # lo que hace el boton Add cuando se pulsa
     def on_add_clicked(widget, parent):
         dialogAdd = Gtk.Dialog(_("Add"), parent,
