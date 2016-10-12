@@ -203,14 +203,14 @@ class AppWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title=_("Film list"))
         self.set_border_width(10)
-        self.resize(400, 300)
+        self.resize(600, 300)
         self.set_position(Gtk.WindowPosition.CENTER)
         
         # caja principal
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.inbox = Gtk.Box()
-        self.treeviewbox = Gtk.Box();
-        self.buttonbox = Gtk.Box()#poner esta caja verticalemnte, y que no se redimensionen los botones pliserino
+        self.treeviewbox = Gtk.Box()
+        self.buttonbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)#poner esta caja verticalemnte, y que no se redimensionen los botones pliserino
         self.add(self.box)
         
         # Creating the filmListstore model
@@ -244,7 +244,7 @@ class AppWindow(Gtk.Window):
         self.box.pack_start(self.filterCombo, False, True, 0)
         
         # Adding the box for the treeview and moving buttons
-        self.box.pack_start(self.treeviewbox, False, True, 0)
+        self.box.pack_start(self.treeviewbox, True, True, 0)
         
         # Creating the treeview and adding the columns
         self.treeview = Gtk.TreeView.new_with_model(self.filmModel)
@@ -262,7 +262,7 @@ class AppWindow(Gtk.Window):
             
         
         
-        #setting up the layout and putting the treeview in a scrollwindow
+        #setting up the layout and putting the treeview in a scrollwindow, and adding the scrollwindow to the second space of the box
         self.scrollableTreelist = Gtk.ScrolledWindow()
         self.scrollableTreelist.set_vexpand(True)
         self.treeviewbox.pack_start(self.scrollableTreelist, True, True, 0)
