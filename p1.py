@@ -14,6 +14,10 @@ gettext.textdomain('p1')
 _ = gettext.gettext
 N_ = gettext.ngettext
 
+# State: 0 means just added
+#        1 means Seen
+#        2 means Plan to Watch
+
 class FilmFile():
     # devuelve la lista de peliculas desde un archivo de texto
     def getFilmList(fileName):
@@ -31,9 +35,9 @@ class FilmFile():
         f = open(fileName, 'w')
         list_iter = filmList.get_iter_first()
         while list_iter is not None:
-            name = filmList.get_value(list_iter, 0)
-            date = filmList.get_value(list_iter, 1)
-            rating = filmList.get_value(list_iter, 2)
+            name = filmList.get_value(list_iter, 1)
+            date = filmList.get_value(list_iter, 2)
+            rating = filmList.get_value(list_iter, 3)
             state = filmList.get_value(list_iter, 4)
             f.write((name + '//' + date + '//' + rating + '//' + state + '\n'))
             list_iter = filmList.iter_next(list_iter)
@@ -46,11 +50,11 @@ class AppActions():
         iter = model.get_iter_first()
         if parent.selectedAll is False:
             while iter is not None:
-                model.set_value(iter, 3, True)
+                model.set_value(iter, 0, True)
                 iter = model.iter_next(iter)
         else:
             while iter is not None:
-                model.set_value(iter, 3, False)
+                model.set_value(iter, 0, False)
                 iter = model.iter_next(iter)
         parent.selectedAll = not parent.selectedAll
     
@@ -58,28 +62,30 @@ class AppActions():
     def on_seen_clicked(widget, parent):
         iter = AppActions.get_first_selected(parent.filmModel)
         while iter is not None:
-            parent.filmModel.set_value(iter, 3, False)
-            parent.filmModel.set_value(iter, 4, "0")
+            parent.filmModel.set_value(iter, 0, False)
+            parent.filmModel.set_value(iter, 4, "1")
             #AppActions.mark_as_seen(iter, parent)
             iter = AppActions.get_first_selected(parent.filmModel)
     
+    # Marcar como Vista
     def mark_as_seen(iter, parent):
-        parent.filmModel.set_value(iter, 4, "0")
+        parent.filmModel.set_value(iter, 4, "1")
         parent.filmModel.refilter()
     
     # Lo que hace el boton Mark as Plan to watch cuando se pulsa
     def on_plan_clicked(widget, parent):
         iter = AppActions.get_first_selected(parent.filmModel)
         while iter is not None:
-            parent.filmModel.set_value(iter, 3, False)
-            parent.filmModel.set_value(iter, 4, "1")
+            parent.filmModel.set_value(iter, 0, False)
+            parent.filmModel.set_value(iter, 4, "2")
             iter = AppActions.get_first_selected(parent.filmModel)
             #AppActions.mark_as_plan(iter, parent)
             
             #parent.filmModel.refilter()
     
+    # Marcar como Pendiente
     def mark_as_plan(iter, parent):
-        parent.filmModel.set_value(iter, 4, "1")
+        parent.filmModel.set_value(iter, 4, "2")
         parent.filmModel.refilter()
     
     # lo que hace el boton Add cuando se pulsa
@@ -104,7 +110,7 @@ class AppActions():
     # funcion de anhadir una pelicula
     def add_film(parent, widget, name, date, rating):
         model = parent.filmModel.get_model()
-        model.append(list((name, date, rating, False, "0")))
+        model.append(list((False, name, date, rating, "0")))
     
     # lo que hace el boton edit cuando se pulsa
     def on_edit_clicked(widget, parent):
@@ -125,16 +131,16 @@ class AppActions():
     
     # funcion de editar una pelicula                
     def edit_film(parent, name, date, rating, iter):
-        parent.filmModel.set_value(iter, 0, name)
-        parent.filmModel.set_value(iter, 1, date)
-        parent.filmModel.set_value(iter, 2, rating)
+        parent.filmModel.set_value(iter, 1, name)
+        parent.filmModel.set_value(iter, 2, date)
+        parent.filmModel.set_value(iter, 3, rating)
     
     # lo que hace el boton remove cuando se pulsa    
     def on_remove_clicked(widget, parent):
         selectedIterators = AppActions.get_cell_selected(parent.filmListstore)
         num = len(selectedIterators)
         if (num == 1):
-            name = parent.filmListstore.get_value((selectedIterators[0]), 0)
+            name = parent.filmListstore.get_value((selectedIterators[0]), 1)
             warning = DialogWarningSingle(parent, name)
             response = warning.run()
         elif (num > 1):
@@ -147,23 +153,22 @@ class AppActions():
                 parent.filmListstore.remove(iter)
         warning.destroy()
     
-    # ---Hemos dejado de usarlo---
     # devuelve los iteradores de las peliculas marcadas    
-    #def get_cell_selected(model):
-    #    selectedIterators = []
-    #    iter = model.get_iter_first()
-    #    while iter is not None:
-    #        selected = model.get_value(iter, 3)
-    #        if selected:
-    #            selectedIterators.append(iter)
-    #        iter = model.iter_next(iter)
-    #    return selectedIterators
+    def get_cell_selected(model):
+        selectedIterators = []
+        iter = model.get_iter_first()
+        while iter is not None:
+            selected = model.get_value(iter, 0)
+            if selected:
+                selectedIterators.append(iter)
+            iter = model.iter_next(iter)
+        return selectedIterators
         
     # devuelve el iterador de la primera fila marcada
     def get_first_selected(model):
         iter = model.get_iter_first()
         while iter is not None:
-            selected = model.get_value(iter, 3)
+            selected = model.get_value(iter, 0)
             if selected:
                 return iter
             iter = model.iter_next(iter)
@@ -181,7 +186,7 @@ class AppActions():
     def search_film(parent, name):
         iter = parent.filmListstore.get_iter_first()
         while iter is not None:
-            storedName = parent.filmListstore.get_value(iter, 0)
+            storedName = parent.filmListstore.get_value(iter, 1)
             if (storedName == name):
                 break
             iter = parent.filmListstore.iter_next(iter)
@@ -196,7 +201,7 @@ class AppActions():
     
     # lo que hace la celda cuando se pulsa
     def on_cell_toggled(widget, path, parent):
-        parent.filmModel[path][3] = not parent.filmModel[path][3]
+        parent.filmModel[path][0] = not parent.filmModel[path][0]
     
     # lo que hace el combo box cuando se pulsa
     def on_combo_changed(combo, parent):
@@ -222,16 +227,15 @@ class AppWindow(Gtk.Window):
         self.add(self.box)
         
         # Creating the filmListstore model
-        self.filmListstore = Gtk.ListStore(str, str, str, bool, str)
+        self.filmListstore = Gtk.ListStore(bool, str, str, str, str)
         
         # Loading stored films
         filmList = FilmFile.getFilmList("films.txt")
-        
         # Adding them into filmListstore
         for filmRef in filmList:
-            filmValues = filmRef[:-1] # Name, Date, Rating
-            filmValues.append(False)
-            filmValues.append(filmRef[-1]) # Status
+            filmValues = filmRef
+            # Adding the checkbox value (False)
+            filmValues.insert(0, False)
             print(filmValues)
             self.filmListstore.append(filmValues)
 
@@ -257,17 +261,19 @@ class AppWindow(Gtk.Window):
         
         # Creating the treeview and adding the columns
         self.treeview = Gtk.TreeView.new_with_model(self.filmModel)
-
-        for i, columnTitle in enumerate([_("Name"),_("Date"),_("Rating")]):
-            rendererText = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(columnTitle, rendererText, text=i)
-            self.treeview.append_column(column)
-            
+        
         # Creating the checkbox column
         rendererToggle = Gtk.CellRendererToggle()
         rendererToggle.connect("toggled", AppActions.on_cell_toggled, self)
-        columnToggle = Gtk.TreeViewColumn("Toggle", rendererToggle, active=3)
+        columnToggle = Gtk.TreeViewColumn("Toggle", rendererToggle, active=0) #3?
         self.treeview.append_column(columnToggle)
+
+        for i, columnTitle in enumerate([_("Name"),_("Date"),_("Rating")]):
+            rendererText = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(columnTitle, rendererText, text=(i+1))
+            self.treeview.append_column(column)
+            
+        
         
         #setting up the layout and putting the treeview in a scrollwindow
         self.scrollableTreelist = Gtk.ScrolledWindow()
@@ -321,12 +327,12 @@ class AppWindow(Gtk.Window):
         if (movieFilter == "All movies"):
             return True
         if (movieFilter == "Seen"):
-            if (model.get_value(iter, 4) == "0"):
+            if (model.get_value(iter, 4) == "1"):
                 return True
             else:
                 return False
         if (movieFilter == "Plan to watch"):
-            if (model[iter][4] == "1"):
+            if (model[iter][4] == "2"):
                 return True
         else:
             return False
@@ -348,7 +354,7 @@ class DialogEdit(Gtk.Dialog):
         box.pack_start(label, True, True, 0)
         
         self.entryName = Gtk.Entry()
-        self.entryName.set_text(model.get_value(iter,0))
+        self.entryName.set_text(model.get_value(iter,1))
         box.pack_start(self.entryName, True, True, 0)
         
         label = Gtk.Label(_("Date:"))
@@ -356,7 +362,7 @@ class DialogEdit(Gtk.Dialog):
         box.pack_start(label, True, True, 0)
         
         self.entryDate = Gtk.Entry()
-        self.entryDate.set_text(model.get_value(iter,1))
+        self.entryDate.set_text(model.get_value(iter,2))
         box.pack_start(self.entryDate, True, True, 0)
             
         label = Gtk.Label(_("Rating:"))
@@ -364,7 +370,7 @@ class DialogEdit(Gtk.Dialog):
         box.pack_start(label, True, True, 0)
         
         self.entryRating = Gtk.Entry()
-        self.entryRating.set_text(model.get_value(iter,2))
+        self.entryRating.set_text(model.get_value(iter,3))
         box.pack_start(self.entryRating, True, True, 0)
         self.show_all()
         
