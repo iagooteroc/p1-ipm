@@ -217,6 +217,8 @@ class AppWindow(Gtk.Window):
         # caja principal
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.inbox = Gtk.Box()
+        self.treeviewbox = Gtk.Box();
+        self.buttonbox = Gtk.Box()#poner esta caja verticalemnte, y que no se redimensionen los botones pliserino
         self.add(self.box)
         
         # Creating the filmListstore model
@@ -250,11 +252,8 @@ class AppWindow(Gtk.Window):
         self.filterCombo.set_active(0)
         self.box.pack_start(self.filterCombo, False, True, 0)
         
-        # Adding the Select/Deselect All button
-        self.selectAllButton = Gtk.Button.new_with_label(_("Select/Deselect All"))
-        self.selectAllButton.connect("clicked", AppActions.on_select_all_clicked, self)
-        self.selectedAll = False
-        self.box.pack_start(self.selectAllButton, False, True, 0)
+        # Adding the box for the treeview and moving buttons
+        self.box.pack_start(self.treeviewbox, False, True, 0)
         
         # Creating the treeview and adding the columns
         self.treeview = Gtk.TreeView.new_with_model(self.filmModel)
@@ -273,10 +272,18 @@ class AppWindow(Gtk.Window):
         #setting up the layout and putting the treeview in a scrollwindow
         self.scrollableTreelist = Gtk.ScrolledWindow()
         self.scrollableTreelist.set_vexpand(True)
-        self.box.pack_start(self.scrollableTreelist, True, True, 0)
+        self.treeviewbox.pack_start(self.scrollableTreelist, True, True, 0)
         self.scrollableTreelist.add(self.treeview)
         
+        self.treeviewbox.pack_start(self.buttonbox, False, True, 0)
+        
         self.box.pack_start(self.inbox, False, True, 0)
+        
+        # Adding the Select/Deselect All button
+        self.selectAllButton = Gtk.Button.new_with_label(_("Select/Deselect All"))
+        self.selectAllButton.connect("clicked", AppActions.on_select_all_clicked, self)
+        self.selectedAll = False
+        self.buttonbox.pack_start(self.selectAllButton, False, False, 0)
         
         # Adding the Add button
         self.addButton = Gtk.Button.new_with_label(_("Add"))
@@ -296,12 +303,12 @@ class AppWindow(Gtk.Window):
         # Adding the Mark as Seen button (provisional)
         self.seenButton = Gtk.Button.new_with_label("Mark as Seen")
         self.seenButton.connect("clicked", AppActions.on_seen_clicked, self)
-        self.inbox.pack_start(self.seenButton, True, True, 0)
+        self.buttonbox.pack_start(self.seenButton, False, False, 0)
         
         # Adding the Mark as Plan to watch button (provisional)
         self.planButton = Gtk.Button.new_with_label("Mark as Plan to watch")
         self.planButton.connect("clicked", AppActions.on_plan_clicked, self)
-        self.inbox.pack_start(self.planButton, True, True, 0)
+        self.buttonbox.pack_start(self.planButton, False, False, 0)
 
         self.connect("delete-event", self.app_quit)
         self.show_all()
