@@ -1,114 +1,116 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Spanish translations for p package
+# Traducciones al español para el paquete p.
+# Copyright (C) 2016 THE p'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the p package.
+# Bran <bran@bran-lifebook-a532>, 2016.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: p 1-ipm-16-17-iagooteroc\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-10-13 17:06+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2016-10-13 16:57+0200\n"
+"Last-Translator: Bran <bran@bran-lifebook-a532>\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: p1.py:80 p1.py:286 p1.py:370
 msgid "Add"
-msgstr ""
+msgstr "Añadir"
 
 #: p1.py:82 p1.py:339 p1.py:371 p1.py:403 p1.py:418
 msgid "OK"
-msgstr ""
+msgstr "Aceptar"
 
 #: p1.py:83 p1.py:340 p1.py:372 p1.py:404 p1.py:419
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: p1.py:95 p1.py:121
 msgid "You must fill in all the fields"
-msgstr ""
+msgstr "Debes rellenar todos los campos"
 
 #: p1.py:104
 msgid "There is already one film with that title"
-msgstr ""
+msgstr "Ya existe una película con ese título"
 
 #: p1.py:208
 msgid "Film list"
-msgstr ""
+msgstr "Lista de Películas"
 
 #: p1.py:243 p1.py:318
 msgid "All movies"
-msgstr ""
+msgstr "Todas las Películas"
 
 #: p1.py:243 p1.py:320
 msgid "Seen"
-msgstr ""
+msgstr "Vistas"
 
 #: p1.py:243 p1.py:325
 msgid "Plan to watch"
-msgstr ""
+msgstr "Pendientes"
 
 #: p1.py:259
 msgid "Toggle"
-msgstr ""
+msgstr "Casilla"
 
 #: p1.py:262
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
 #: p1.py:262
 msgid "Date"
-msgstr ""
+msgstr "Fecha"
 
 #: p1.py:262
 msgid "Rating"
-msgstr ""
+msgstr "Puntuación"
 
 #: p1.py:280
 msgid "Select/Deselect All"
-msgstr ""
+msgstr "Seleccionar/Desseleccionar Todas"
 
 #: p1.py:291 p1.py:338
 msgid "Edit"
-msgstr ""
+msgstr "Editar"
 
 #: p1.py:296
 msgid "Remove"
-msgstr ""
+msgstr "Eliminar"
 
 #: p1.py:301
 msgid "Mark as Seen"
 msgstr ""
 
 #: p1.py:306
+#, fuzzy
 msgid "Mark as Plan to watch"
-msgstr ""
+msgstr "Pendientes"
 
 #: p1.py:343 p1.py:376
 msgid "Name:"
-msgstr ""
+msgstr "Nombre:"
 
 #: p1.py:351 p1.py:383
 msgid "Date:"
-msgstr ""
+msgstr "Fecha:"
 
 #: p1.py:359 p1.py:391
 msgid "Rating:"
-msgstr ""
+msgstr "Puntuación"
 
 #: p1.py:402 p1.py:417
 msgid "Warning"
-msgstr ""
+msgstr "Advertencia"
 
 #: p1.py:408
 msgid "Are you sure you want to delete ''"
-msgstr ""
+msgstr "Está seguro de que desea eliminar ''"
 
 #: p1.py:423
 msgid "Are you sure you want to delete "
-msgstr ""
+msgstr "Está seguro de que desea eliminar ''"

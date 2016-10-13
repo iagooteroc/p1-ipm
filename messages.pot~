@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-13 17:06+0200\n"
+"POT-Creation-Date: 2016-10-13 16:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,39 +19,39 @@ msgstr ""
 
 #: p1.py:80 p1.py:286 p1.py:370
 msgid "Add"
-msgstr ""
+msgstr "Añadir"
 
 #: p1.py:82 p1.py:339 p1.py:371 p1.py:403 p1.py:418
 msgid "OK"
-msgstr ""
+msgstr "Aceptar"
 
 #: p1.py:83 p1.py:340 p1.py:372 p1.py:404 p1.py:419
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: p1.py:95 p1.py:121
 msgid "You must fill in all the fields"
-msgstr ""
+msgstr "Debes rellenar todos los campos"
 
 #: p1.py:104
 msgid "There is already one film with that title"
-msgstr ""
+msgstr "Ya existe una película con ese título"
 
 #: p1.py:208
 msgid "Film list"
-msgstr ""
+msgstr "Lista de Películas"
 
 #: p1.py:243 p1.py:318
 msgid "All movies"
-msgstr ""
+msgstr "Todas las Películas"
 
 #: p1.py:243 p1.py:320
 msgid "Seen"
-msgstr ""
+msgstr "Vistas"
 
 #: p1.py:243 p1.py:325
 msgid "Plan to watch"
-msgstr ""
+msgstr "Pendientes"
 
 #: p1.py:259
 msgid "Toggle"
@@ -79,14 +79,6 @@ msgstr ""
 
 #: p1.py:296
 msgid "Remove"
-msgstr ""
-
-#: p1.py:301
-msgid "Mark as Seen"
-msgstr ""
-
-#: p1.py:306
-msgid "Mark as Plan to watch"
 msgstr ""
 
 #: p1.py:343 p1.py:376

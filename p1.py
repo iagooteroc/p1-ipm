@@ -101,7 +101,7 @@ class AppActions():
             model = parent.filmModel.get_model()
             model.append(list((False, name, date, rating, "0")))
         else:
-            AppActions.error_dialog(parent, "There is already one film with that title")
+            AppActions.error_dialog(parent, _("There is already one film with that title"))
     
     # lo que hace el boton edit cuando se pulsa
     def on_edit_clicked(widget, parent):
@@ -240,7 +240,7 @@ class AppWindow(Gtk.Window):
         self.filterCombo.set_entry_text_column(0)
         
         # Adding the filter names
-        filters = ["All movies", "Seen", "Plan to watch"]
+        filters = [_("All movies"), _("Seen"), _("Plan to watch")]
         for filterName in filters:
             self.filterCombo.append_text(filterName)
 
@@ -256,7 +256,7 @@ class AppWindow(Gtk.Window):
         # Creating the checkbox column
         rendererToggle = Gtk.CellRendererToggle()
         rendererToggle.connect("toggled", AppActions.on_cell_toggled, self)
-        columnToggle = Gtk.TreeViewColumn("Toggle", rendererToggle, active=0)
+        columnToggle = Gtk.TreeViewColumn(_("Toggle"), rendererToggle, active=0)
         self.treeview.append_column(columnToggle)
 
         for i, columnTitle in enumerate([_("Name"),_("Date"),_("Rating")]):
@@ -298,12 +298,12 @@ class AppWindow(Gtk.Window):
         self.inbox.pack_start(self.removeButton, True, True, 0)
         
         # Adding the Mark as Seen button
-        self.seenButton = Gtk.Button.new_with_label("Mark as Seen")
+        self.seenButton = Gtk.Button.new_with_label(_("Mark as Seen"))
         self.seenButton.connect("clicked", AppActions.on_seen_clicked, self)
         self.buttonbox.pack_start(self.seenButton, False, False, 0)
         
         # Adding the Mark as Plan to watch button
-        self.planButton = Gtk.Button.new_with_label("Mark as Plan to watch")
+        self.planButton = Gtk.Button.new_with_label(_("Mark as Plan to watch"))
         self.planButton.connect("clicked", AppActions.on_plan_clicked, self)
         self.buttonbox.pack_start(self.planButton, False, False, 0)
 
@@ -315,14 +315,14 @@ class AppWindow(Gtk.Window):
         treeIter = self.filterCombo.get_active_iter()
         comboModel = self.filterCombo.get_model()
         movieFilter = comboModel[treeIter][0]
-        if (movieFilter == "All movies"):
+        if (movieFilter == _("All movies")):
             return True
-        if (movieFilter == "Seen"):
+        if (movieFilter == _("Seen")):
             if (model.get_value(iter, 4) == "1"):
                 return True
             else:
                 return False
-        if (movieFilter == "Plan to watch"):
+        if (movieFilter == _("Plan to watch")):
             if (model[iter][4] == "2"):
                 return True
         else:
