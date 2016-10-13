@@ -92,12 +92,16 @@ class AppActions():
                 if (name != '') and (date != '') and (rating != ''):
                     AppActions.add_film(parent, widget, name, date, rating)
                 else:
-                    AppActions.error_dialog_blank(parent)
+                    AppActions.error_dialog(parent, _("You must fill in all the fields"))
 
     # funcion de anhadir una pelicula
     def add_film(parent, widget, name, date, rating):
-        model = parent.filmModel.get_model()
-        model.append(list((False, name, date, rating, "0")))
+        result = AppActions.search_film(parent, name)
+        if result is None:
+            model = parent.filmModel.get_model()
+            model.append(list((False, name, date, rating, "0")))
+        else:
+            AppActions.error_dialog(parent, "There is already one film with that title")
     
     # lo que hace el boton edit cuando se pulsa
     def on_edit_clicked(widget, parent):
@@ -114,7 +118,7 @@ class AppActions():
                 if (newName != '') and (newDate != '') and (newRating != ''):
                     AppActions.edit_film(parent, newName, newDate, newRating, iter)
                 else:
-                    AppActions.error_dialog_blank(parent)
+                    AppActions.error_dialog(parent, _("You must fill in all the fields"))
     
     # funcion de editar una pelicula                
     def edit_film(parent, name, date, rating, iter):
@@ -180,9 +184,9 @@ class AppActions():
         return iter
     
     # ventana modal de mensaje de error        
-    def error_dialog_blank(parent):
+    def error_dialog(parent, text):
         dialogError = Gtk.MessageDialog(parent, 0, Gtk.MessageType.ERROR,
-            Gtk.ButtonsType.OK, _("You must fill in all the fields"))
+            Gtk.ButtonsType.OK, text)
         dialogError.run()
         dialogError.destroy()
     
@@ -252,7 +256,7 @@ class AppWindow(Gtk.Window):
         # Creating the checkbox column
         rendererToggle = Gtk.CellRendererToggle()
         rendererToggle.connect("toggled", AppActions.on_cell_toggled, self)
-        columnToggle = Gtk.TreeViewColumn("Toggle", rendererToggle, active=0) #3?
+        columnToggle = Gtk.TreeViewColumn("Toggle", rendererToggle, active=0)
         self.treeview.append_column(columnToggle)
 
         for i, columnTitle in enumerate([_("Name"),_("Date"),_("Rating")]):
@@ -293,12 +297,12 @@ class AppWindow(Gtk.Window):
         self.removeButton.connect("clicked", AppActions.on_remove_clicked, self)
         self.inbox.pack_start(self.removeButton, True, True, 0)
         
-        # Adding the Mark as Seen button (provisional)
+        # Adding the Mark as Seen button
         self.seenButton = Gtk.Button.new_with_label("Mark as Seen")
         self.seenButton.connect("clicked", AppActions.on_seen_clicked, self)
         self.buttonbox.pack_start(self.seenButton, False, False, 0)
         
-        # Adding the Mark as Plan to watch button (provisional)
+        # Adding the Mark as Plan to watch button
         self.planButton = Gtk.Button.new_with_label("Mark as Plan to watch")
         self.planButton.connect("clicked", AppActions.on_plan_clicked, self)
         self.buttonbox.pack_start(self.planButton, False, False, 0)
