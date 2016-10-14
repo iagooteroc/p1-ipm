@@ -5,6 +5,7 @@ from gi.repository import Gtk
 import locale
 import gettext
 import os
+import threading
 from tmdb import *
 
 locale.setlocale(locale.LC_ALL,'')
@@ -203,29 +204,20 @@ class AppActions():
         if (model[treeIter][0] == "Recommended"):
             parent.editButton.set_sensitive(False)
             parent.removeButton.set_sensitive(False)
-            AppActions.recommended_function(parent)
+            parent.start_thread()
+            #parent.recommendedThread = ThreadRecommendations(parent)
+            #parent.recommendedThread.start()
+            #dialogLoading = DialogLoading(parent)
+            #dialogLoading.run()
+            #parent.recommendedThread.join()
+            #dialogLoading.destroy()
+            #parent.recommendedThread.join()
+            #AppActions.recommended_function(parent)
         else:
             parent.editButton.set_sensitive(True)
             parent.removeButton.set_sensitive(True)
         parent.filmModel.refilter()
         print(model[treeIter][0])
-    
-    # Manages the recommendation of films
-    def recommended_function(parent):
-        AppActions.clear_recommended(parent)
-        iter = parent.filmListstore.get_iter_first()
-        id_list = []
-        while iter is not None:
-            storedState = parent.filmListstore.get_value(iter, 4)
-            if (storedState == "1"):
-                name = parent.filmListstore.get_value(iter, 1)
-                print("Name: " + name)
-                id = parent.moviedb.get_movie_id(name)
-                print("ID: " + id)
-                if id is not None:
-                    id_list.append(id)
-            iter = parent.filmListstore.iter_next(iter)
-        AppActions.load_recommended(id_list, parent)
     
     # Borra las peliculas recomendadas almacenadas
     def clear_recommended(parent):
@@ -239,21 +231,6 @@ class AppActions():
             else:
                 iter = parent.filmListstore.iter_next(iter)
         print("Previous recommended erased")
-    
-    # Obtiene peliculas recomendadas en funcion de una lista de ids y las anhade
-    def load_recommended(id_list, parent):
-        print("Getting recommendations...")
-        filmList = parent.moviedb.get_recommendations(id_list)
-        print(filmList)
-        for film in filmList:
-            name = film[0]
-            result = AppActions.search_film(parent, name)
-            if result is not None:
-                continue
-            date = film[1]
-            rating = film[2]
-            print("Adding " + film[0])
-            AppActions.add_film(parent, name, date, rating, "3")
         
 
 class AppWindow(Gtk.Window):
@@ -365,6 +342,7 @@ class AppWindow(Gtk.Window):
         self.show_all()
         
         self.moviedb = Tmdb()
+        self.recommendedThread = ThreadRecommendations(self)
         
     # funcion de filtrar las peliculas por Todas, Vistas o Por ver        
     def film_filter_func(self, model, iter, data):
@@ -392,6 +370,15 @@ class AppWindow(Gtk.Window):
                 return True
         else:
             return False
+    
+    def start_thread(self):
+        self.recommendedThread = ThreadRecommendations(self)
+        self.recommendedThread.start()
+        dialogLoading = DialogLoading(self)
+        dialogLoading.run()
+        parent.recommendedThread.join()
+        #dialogLoading.close()
+        dialogLoading.destroy()
             
     # funcion que guarda los cambios en el archivo de texto
     def app_quit(self, parent, widget):
@@ -493,6 +480,62 @@ class DialogWarningMultiple(Gtk.Dialog):
         box.add(label)
         self.show_all()
 
+class DialogLoading(Gtk.Dialog):
+    
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, "Loading", parent, Gtk.DialogFlags.MODAL)
+        self.set_default_size(150, 100)
+        label = Gtk.Label("Loading recommended films...")
+        box = self.get_content_area()
+        box.add(label)
+        self.show_all()
+        self.response(0)
+        print("Enviada respuesta")
+        #thread.join()
+        #self.destroy()
+
+class ThreadRecommendations(threading.Thread):
+    def __init__(self, parent):
+        threading.Thread.__init__(self)
+        self.parent = parent
+        
+    def run(self):
+        self.recommended_function(self.parent)
+    
+        # Manages the recommendation of films
+    def recommended_function(self, parent):
+        AppActions.clear_recommended(parent)
+        iter = parent.filmListstore.get_iter_first()
+        id_list = []
+        while iter is not None:
+            storedState = parent.filmListstore.get_value(iter, 4)
+            if (storedState == "1"):
+                name = parent.filmListstore.get_value(iter, 1)
+                print("Name: " + name)
+                id = parent.moviedb.get_movie_id(name)
+                print("ID: " + id)
+                if id is not None:
+                    id_list.append(id)
+            iter = parent.filmListstore.iter_next(iter)
+        self.load_recommended(id_list, parent)
+    
+    # Obtiene peliculas recomendadas en funcion de una lista de ids y las anhade
+    def load_recommended(self, id_list, parent):
+        print("Getting recommendations...")
+        filmList = parent.moviedb.get_recommendations(id_list)
+        print(filmList)
+        for film in filmList:
+            name = film[0]
+            result = AppActions.search_film(parent, name)
+            if result is not None:
+                continue
+            date = film[1]
+            rating = film[2]
+            print("Adding " + film[0])
+            AppActions.add_film(parent, name, date, rating, "3")
+            parent.filmModel.refilter()
+        
+        
 
 win = AppWindow()
 Gtk.main()
