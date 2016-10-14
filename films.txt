@@ -1,3 +1,8 @@
-Name1//Date1//Rating1//1
-Name2//Date2//Rating2//1
-Name3//Date3//Rating3//1
+Superman II//1980-12-04//6.2//1
+Superman III//1983-06-17//4.7//2
+Superman IV: En busca de la paz//1987-07-23//4.2//2
+Sherlock Holmes: Juego de sombras//2011-11-22//6.9//1
+Iron Man 2//2010-04-28//6.6//1
+Piratas del Caribe: En mareas misteriosas//2011-05-11//6.3//2
+Superman//1978-12-14//6.7//1
+Sherlock Holmes//2009-01-07//6.9//1

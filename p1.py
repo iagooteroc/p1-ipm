@@ -5,6 +5,7 @@ from gi.repository import Gtk
 import locale
 import gettext
 import os
+from tmdb import *
 
 locale.setlocale(locale.LC_ALL,'')
 LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locale")
@@ -17,6 +18,7 @@ N_ = gettext.ngettext
 # State: 0 means just added
 #        1 means Seen
 #        2 means Plan to Watch
+#        3 means Recommended
 
 class FilmFile():
     # devuelve la lista de peliculas desde un archivo de texto
@@ -90,16 +92,16 @@ class AppActions():
         
         if (response == Gtk.ResponseType.OK):
                 if (name != '') and (date != '') and (rating != ''):
-                    AppActions.add_film(parent, widget, name, date, rating)
+                    AppActions.add_film(parent, name, date, rating, "0")
                 else:
                     AppActions.error_dialog(parent, _("You must fill in all the fields"))
 
     # funcion de anhadir una pelicula
-    def add_film(parent, widget, name, date, rating):
+    def add_film(parent, name, date, rating, state):
         result = AppActions.search_film(parent, name)
         if result is None:
             model = parent.filmModel.get_model()
-            model.append(list((False, name, date, rating, "0")))
+            model.append(list((False, name, date, rating, state)))
         else:
             AppActions.error_dialog(parent, _("There is already one film with that title"))
     
@@ -198,8 +200,60 @@ class AppActions():
     def on_combo_changed(combo, parent):
         treeIter = combo.get_active_iter()
         model = combo.get_model()
+        if (model[treeIter][0] == "Recommended"):
+            parent.editButton.set_sensitive(False)
+            parent.removeButton.set_sensitive(False)
+            AppActions.recommended_function(parent)
+        else:
+            parent.editButton.set_sensitive(True)
+            parent.removeButton.set_sensitive(True)
         parent.filmModel.refilter()
         print(model[treeIter][0])
+    
+    # Manages the recommendation of films
+    def recommended_function(parent):
+        AppActions.clear_recommended(parent)
+        iter = parent.filmListstore.get_iter_first()
+        id_list = []
+        while iter is not None:
+            storedState = parent.filmListstore.get_value(iter, 4)
+            if (storedState == "1"):
+                name = parent.filmListstore.get_value(iter, 1)
+                print("Name: " + name)
+                id = parent.moviedb.get_movie_id(name)
+                print("ID: " + id)
+                if id is not None:
+                    id_list.append(id)
+            iter = parent.filmListstore.iter_next(iter)
+        AppActions.load_recommended(id_list, parent)
+    
+    # Borra las peliculas recomendadas almacenadas
+    def clear_recommended(parent):
+        iter = parent.filmListstore.get_iter_first()
+        while iter is not None:
+            storedState = parent.filmListstore.get_value(iter, 4)
+            if (storedState == "3"):
+                removeIter = iter
+                iter = parent.filmListstore.iter_next(iter)
+                parent.filmListstore.remove(removeIter)
+            else:
+                iter = parent.filmListstore.iter_next(iter)
+        print("Previous recommended erased")
+    
+    # Obtiene peliculas recomendadas en funcion de una lista de ids y las anhade
+    def load_recommended(id_list, parent):
+        print("Getting recommendations...")
+        filmList = parent.moviedb.get_recommendations(id_list)
+        print(filmList)
+        for film in filmList:
+            name = film[0]
+            result = AppActions.search_film(parent, name)
+            if result is not None:
+                continue
+            date = film[1]
+            rating = film[2]
+            print("Adding " + film[0])
+            AppActions.add_film(parent, name, date, rating, "3")
         
 
 class AppWindow(Gtk.Window):
@@ -240,7 +294,7 @@ class AppWindow(Gtk.Window):
         self.filterCombo.set_entry_text_column(0)
         
         # Adding the filter names
-        filters = [_("All movies"), _("Seen"), _("Plan to watch")]
+        filters = [_("All movies"), _("Seen"), _("Plan to watch"), "Recommended"]
         for filterName in filters:
             self.filterCombo.append_text(filterName)
 
@@ -309,6 +363,9 @@ class AppWindow(Gtk.Window):
 
         self.connect("delete-event", self.app_quit)
         self.show_all()
+        
+        self.moviedb = Tmdb()
+        
     # funcion de filtrar las peliculas por Todas, Vistas o Por ver        
     def film_filter_func(self, model, iter, data):
         #print("Filtering...")
@@ -316,7 +373,10 @@ class AppWindow(Gtk.Window):
         comboModel = self.filterCombo.get_model()
         movieFilter = comboModel[treeIter][0]
         if (movieFilter == _("All movies")):
-            return True
+            if (model.get_value(iter, 4) != "3"):
+                return True
+            else:
+                return False
         if (movieFilter == _("Seen")):
             if (model.get_value(iter, 4) == "1"):
                 return True
@@ -325,11 +385,18 @@ class AppWindow(Gtk.Window):
         if (movieFilter == _("Plan to watch")):
             if (model[iter][4] == "2"):
                 return True
+            else:
+                return False
+        if (movieFilter == "Recommended"):
+            if (model.get_value(iter, 4) == "3"):
+                return True
         else:
             return False
             
     # funcion que guarda los cambios en el archivo de texto
     def app_quit(self, parent, widget):
+        self.moviedb.close_connection()
+        AppActions.clear_recommended(self)
         FilmFile.writeFilmList("films.txt", self.filmListstore)
         Gtk.main_quit()
 
