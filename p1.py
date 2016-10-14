@@ -237,15 +237,19 @@ class AppWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title=_("Film list"))
-        self.set_border_width(10)
+        self.set_border_width(18)#cambie esto
         self.resize(600, 300)
         self.set_position(Gtk.WindowPosition.CENTER)
         
         # caja principal
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.inbox = Gtk.Box()
+        self.inbox.set_spacing(6)#cambie esto
+        self.box.set_spacing(6)#cambie esto
         self.treeviewbox = Gtk.Box()
-        self.buttonbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)#poner esta caja verticalemnte, y que no se redimensionen los botones pliserino
+        self.treeviewbox.set_spacing(12)#cambie esto
+        self.buttonbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.buttonbox.set_spacing(6);#cambie esto
         self.add(self.box)
         
         # Creating the filmListstore model
@@ -392,7 +396,9 @@ class DialogEdit(Gtk.Dialog):
         Gtk.Dialog.__init__(self, _("Edit"), parent, Gtk.DialogFlags.MODAL,
             (_("OK"), Gtk.ResponseType.OK,
              _("Cancel"), Gtk.ResponseType.CANCEL))
+        self.set_border_width(18)#cambie esto
         box = self.get_content_area()
+        box.set_spacing(6);#cambie esto
         
         label = Gtk.Label(_("Name:"))
         label.set_justify(Gtk.Justification.LEFT)
@@ -424,8 +430,9 @@ class DialogAdd(Gtk.Dialog):
         Gtk.Dialog.__init__(self, _("Add"), parent, Gtk.DialogFlags.MODAL,
             (_("OK"), Gtk.ResponseType.OK,
              _("Cancel"), Gtk.ResponseType.CANCEL))
-             
+        self.set_border_width(18)#cambie esto     
         box = self.get_content_area()
+        box.set_spacing(6);#cambie esto
         
         label = Gtk.Label(_("Name:"))
         label.set_justify(Gtk.Justification.LEFT)
