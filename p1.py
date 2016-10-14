@@ -67,7 +67,6 @@ class AppActions():
         while iter is not None:
             parent.filmModel.set_value(iter, 0, False)
             parent.filmModel.set_value(iter, 4, "1")
-            #AppActions.mark_as_seen(iter, parent)
             iter = AppActions.get_first_selected(parent.filmModel)
     
     # Lo que hace el boton Mark as Plan to watch cuando se pulsa
@@ -105,6 +104,7 @@ class AppActions():
             model.append(list((False, name, date, rating, state)))
         else:
             AppActions.error_dialog(parent, _("There is already one film with that title"))
+        parent.filmModel.refilter()
     
     # lo que hace el boton edit cuando se pulsa
     def on_edit_clicked(widget, parent):
@@ -204,15 +204,9 @@ class AppActions():
         if (model[treeIter][0] == "Recommended"):
             parent.editButton.set_sensitive(False)
             parent.removeButton.set_sensitive(False)
-            parent.start_thread()
-            #parent.recommendedThread = ThreadRecommendations(parent)
-            #parent.recommendedThread.start()
-            #dialogLoading = DialogLoading(parent)
-            #dialogLoading.run()
-            #parent.recommendedThread.join()
-            #dialogLoading.destroy()
-            #parent.recommendedThread.join()
-            #AppActions.recommended_function(parent)
+            parent.recommendedThread = ThreadRecommendations(parent)
+            parent.recommendedThread.start()
+            
         else:
             parent.editButton.set_sensitive(True)
             parent.removeButton.set_sensitive(True)
@@ -237,20 +231,45 @@ class AppWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title=_("Film list"))
-        self.set_border_width(18)#cambie esto
+        self.set_border_width(10)
         self.resize(600, 300)
         self.set_position(Gtk.WindowPosition.CENTER)
+        self.moviedb = Tmdb()
         
-        # caja principal
+        # Creating all the boxes
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.inbox = Gtk.Box()
-        self.inbox.set_spacing(6)#cambie esto
-        self.box.set_spacing(6)#cambie esto
         self.treeviewbox = Gtk.Box()
-        self.treeviewbox.set_spacing(12)#cambie esto
         self.buttonbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.buttonbox.set_spacing(6);#cambie esto
-        self.add(self.box)
+        
+        # Creating the Select/Deselect All button
+        self.selectAllButton = Gtk.Button.new_with_label(_("Select/Deselect All"))
+        self.selectAllButton.connect("clicked", AppActions.on_select_all_clicked, self)
+        self.selectedAll = False
+        
+        # Creating the Add button
+        self.addButton = Gtk.Button.new_with_label(_("Add"))
+        self.addButton.connect("clicked", AppActions.on_add_clicked, self)
+        
+        # Creating the Edit button
+        self.editButton = Gtk.Button.new_with_label(_("Edit"))
+        self.editButton.connect("clicked", AppActions.on_edit_clicked, self)
+        
+        # Creating the Remove button
+        self.removeButton = Gtk.Button.new_with_label(_("Remove"))
+        self.removeButton.connect("clicked", AppActions.on_remove_clicked, self)
+        
+        # Creating the Mark as Seen button
+        self.seenButton = Gtk.Button.new_with_label(_("Mark as Seen"))
+        self.seenButton.connect("clicked", AppActions.on_seen_clicked, self)
+        
+        # Creating the Mark as Plan to watch button
+        self.planButton = Gtk.Button.new_with_label(_("Mark as Plan to watch"))
+        self.planButton.connect("clicked", AppActions.on_plan_clicked, self)
+        
+        # Creating the Loading label and the Spinner
+        self.loadingText = Gtk.Label("Loading ")
+        self.spinner = Gtk.Spinner()
         
         # Creating the filmListstore model
         self.filmListstore = Gtk.ListStore(bool, str, str, str, str)
@@ -278,12 +297,7 @@ class AppWindow(Gtk.Window):
         filters = [_("All movies"), _("Seen"), _("Plan to watch"), "Recommended"]
         for filterName in filters:
             self.filterCombo.append_text(filterName)
-
         self.filterCombo.set_active(0)
-        self.box.pack_start(self.filterCombo, False, True, 0)
-        
-        # Adding the box for the treeview and moving buttons
-        self.box.pack_start(self.treeviewbox, True, True, 0)
         
         # Creating the treeview and adding the columns
         self.treeview = Gtk.TreeView.new_with_model(self.filmModel)
@@ -294,63 +308,45 @@ class AppWindow(Gtk.Window):
         columnToggle = Gtk.TreeViewColumn(_("Toggle"), rendererToggle, active=0)
         self.treeview.append_column(columnToggle)
 
+        # Creating the Name/Date/Rating columns
         for i, columnTitle in enumerate([_("Name"),_("Date"),_("Rating")]):
             rendererText = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(columnTitle, rendererText, text=(i+1))
             self.treeview.append_column(column)
-            
         
-        
-        #setting up the layout and putting the treeview in a scrollwindow, and adding the scrollwindow to the second space of the box
+        # Setting up the layout and putting the treeview in a scrollwindow
         self.scrollableTreelist = Gtk.ScrolledWindow()
         self.scrollableTreelist.set_vexpand(True)
-        self.treeviewbox.pack_start(self.scrollableTreelist, True, True, 0)
         self.scrollableTreelist.add(self.treeview)
-        
-        self.treeviewbox.pack_start(self.buttonbox, False, True, 0)
-        
-        self.box.pack_start(self.inbox, False, True, 0)
-        
-        # Adding the Select/Deselect All button
-        self.selectAllButton = Gtk.Button.new_with_label(_("Select/Deselect All"))
-        self.selectAllButton.connect("clicked", AppActions.on_select_all_clicked, self)
-        self.selectedAll = False
-        self.buttonbox.pack_start(self.selectAllButton, False, False, 0)
-        
-        # Adding the Add button
-        self.addButton = Gtk.Button.new_with_label(_("Add"))
-        self.addButton.connect("clicked", AppActions.on_add_clicked, self)
-        self.inbox.pack_start(self.addButton, True, True, 0)
-        
-        # Adding the Edit button
-        self.editButton = Gtk.Button.new_with_label(_("Edit"))
-        self.editButton.connect("clicked", AppActions.on_edit_clicked, self)
-        self.inbox.pack_start(self.editButton, True, True, 0)
-        
-        # Adding the Remove button
-        self.removeButton = Gtk.Button.new_with_label(_("Remove"))
-        self.removeButton.connect("clicked", AppActions.on_remove_clicked, self)
-        self.inbox.pack_start(self.removeButton, True, True, 0)
-        
-        # Adding the Mark as Seen button
-        self.seenButton = Gtk.Button.new_with_label(_("Mark as Seen"))
-        self.seenButton.connect("clicked", AppActions.on_seen_clicked, self)
-        self.buttonbox.pack_start(self.seenButton, False, False, 0)
-        
-        # Adding the Mark as Plan to watch button
-        self.planButton = Gtk.Button.new_with_label(_("Mark as Plan to watch"))
-        self.planButton.connect("clicked", AppActions.on_plan_clicked, self)
-        self.buttonbox.pack_start(self.planButton, False, False, 0)
 
         self.connect("delete-event", self.app_quit)
-        self.show_all()
         
-        self.moviedb = Tmdb()
-        self.recommendedThread = ThreadRecommendations(self)
+        # Adding the box and the widgets to the window
+        # Main Box:
+        self.add(self.box)
+        self.box.pack_start(self.filterCombo, False, True, 0)
+        self.box.pack_start(self.treeviewbox, True, True, 0)
+        self.box.pack_start(self.inbox, False, True, 0)
+        # TreeViewBox:
+        self.treeviewbox.pack_start(self.scrollableTreelist, True, True, 0)
+        self.treeviewbox.pack_start(self.buttonbox, False, True, 0)
+        # ButtonBox:
+        self.buttonbox.pack_start(self.selectAllButton, False, False, 0)
+        self.buttonbox.pack_start(self.seenButton, False, False, 0)
+        self.buttonbox.pack_start(self.planButton, False, False, 0)
+        self.buttonbox.pack_start(self.loadingText, False, False, 0)
+        self.buttonbox.pack_start(self.spinner, False, False, 0)
+        # InBox:
+        self.inbox.pack_start(self.addButton, True, True, 0)
+        self.inbox.pack_start(self.editButton, True, True, 0)
+        self.inbox.pack_start(self.removeButton, True, True, 0)
+        
+        self.show_all()
+        self.loadingText.hide()
+        self.spinner.hide()
         
     # funcion de filtrar las peliculas por Todas, Vistas o Por ver        
     def film_filter_func(self, model, iter, data):
-        #print("Filtering...")
         treeIter = self.filterCombo.get_active_iter()
         comboModel = self.filterCombo.get_model()
         movieFilter = comboModel[treeIter][0]
@@ -374,16 +370,7 @@ class AppWindow(Gtk.Window):
                 return True
         else:
             return False
-    
-    def start_thread(self):
-        self.recommendedThread = ThreadRecommendations(self)
-        self.recommendedThread.start()
-        dialogLoading = DialogLoading(self)
-        dialogLoading.run()
-        parent.recommendedThread.join()
-        #dialogLoading.close()
-        dialogLoading.destroy()
-            
+        
     # funcion que guarda los cambios en el archivo de texto
     def app_quit(self, parent, widget):
         self.moviedb.close_connection()
@@ -396,9 +383,7 @@ class DialogEdit(Gtk.Dialog):
         Gtk.Dialog.__init__(self, _("Edit"), parent, Gtk.DialogFlags.MODAL,
             (_("OK"), Gtk.ResponseType.OK,
              _("Cancel"), Gtk.ResponseType.CANCEL))
-        self.set_border_width(18)#cambie esto
         box = self.get_content_area()
-        box.set_spacing(6);#cambie esto
         
         label = Gtk.Label(_("Name:"))
         label.set_justify(Gtk.Justification.LEFT)
@@ -430,9 +415,8 @@ class DialogAdd(Gtk.Dialog):
         Gtk.Dialog.__init__(self, _("Add"), parent, Gtk.DialogFlags.MODAL,
             (_("OK"), Gtk.ResponseType.OK,
              _("Cancel"), Gtk.ResponseType.CANCEL))
-        self.set_border_width(18)#cambie esto     
+             
         box = self.get_content_area()
-        box.set_spacing(6);#cambie esto
         
         label = Gtk.Label(_("Name:"))
         label.set_justify(Gtk.Justification.LEFT)
@@ -487,29 +471,22 @@ class DialogWarningMultiple(Gtk.Dialog):
         box.add(label)
         self.show_all()
 
-class DialogLoading(Gtk.Dialog):
-    
-    def __init__(self, parent):
-        Gtk.Dialog.__init__(self, "Loading", parent, Gtk.DialogFlags.MODAL)
-        self.set_default_size(150, 100)
-        label = Gtk.Label("Loading recommended films...")
-        box = self.get_content_area()
-        box.add(label)
-        self.show_all()
-        self.response(0)
-        print("Enviada respuesta")
-        #thread.join()
-        #self.destroy()
-
 class ThreadRecommendations(threading.Thread):
     def __init__(self, parent):
         threading.Thread.__init__(self)
         self.parent = parent
         
     def run(self):
+        self.parent.loadingText.show()
+        self.parent.spinner.show()
+        self.parent.spinner.start()
         self.recommended_function(self.parent)
+        self.parent.loadingText.hide()
+        self.parent.spinner.stop()
+        self.parent.spinner.hide()
+        print("Ending thread...")
     
-        # Manages the recommendation of films
+    # Manages the recommendation of films
     def recommended_function(self, parent):
         AppActions.clear_recommended(parent)
         iter = parent.filmListstore.get_iter_first()
@@ -520,7 +497,6 @@ class ThreadRecommendations(threading.Thread):
                 name = parent.filmListstore.get_value(iter, 1)
                 print("Name: " + name)
                 id = parent.moviedb.get_movie_id(name)
-                print("ID: " + id)
                 if id is not None:
                     id_list.append(id)
             iter = parent.filmListstore.iter_next(iter)
