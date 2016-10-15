@@ -112,7 +112,7 @@ msgstr "Fecha:"
 
 #: p1.py:404 p1.py:436
 msgid "Rating:"
-msgstr "Puntuación"
+msgstr "Puntuación:"
 
 #: p1.py:447 p1.py:462
 msgid "Warning"

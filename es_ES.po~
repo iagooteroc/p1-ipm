@@ -135,7 +135,6 @@ msgid "Ending thread..."
 msgstr "Finalizando thread..."
 
 #: p1.py:498
-#, fuzzy
 msgid "Name: "
 msgstr "Nombre:"
 

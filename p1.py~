@@ -231,7 +231,7 @@ class AppWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title=_("Film list"))
-        self.set_border_width(10)
+        self.set_border_width(18)
         self.resize(600, 300)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.moviedb = Tmdb()
@@ -241,6 +241,12 @@ class AppWindow(Gtk.Window):
         self.inbox = Gtk.Box()
         self.treeviewbox = Gtk.Box()
         self.buttonbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        
+        #Resizing all the boxes to GIHG
+        self.box.set_spacing(6)
+        self.inbox.set_spacing(6)
+        self.treeviewbox.set_spacing(12)
+        self.buttonbox.set_spacing(6)
         
         # Creating the Select/Deselect All button
         self.selectAllButton = Gtk.Button.new_with_label(_("Select/Deselect All"))
@@ -383,7 +389,9 @@ class DialogEdit(Gtk.Dialog):
         Gtk.Dialog.__init__(self, _("Edit"), parent, Gtk.DialogFlags.MODAL,
             (_("OK"), Gtk.ResponseType.OK,
              _("Cancel"), Gtk.ResponseType.CANCEL))
+        self.set_border_width(18)
         box = self.get_content_area()
+        box.set_spacing(6)
         
         label = Gtk.Label(_("Name:"))
         label.set_justify(Gtk.Justification.LEFT)
@@ -415,30 +423,43 @@ class DialogAdd(Gtk.Dialog):
         Gtk.Dialog.__init__(self, _("Add"), parent, Gtk.DialogFlags.MODAL,
             (_("OK"), Gtk.ResponseType.OK,
              _("Cancel"), Gtk.ResponseType.CANCEL))
-             
-        box = self.get_content_area()
+        self.set_border_width(18)
+       
+        self.box = self.get_content_area()
+        self.box.set_spacing(12)
+        
+        self.newbox  = Gtk.Box()
+        self.newbox.set_spacing(6)
+        labelbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        entrybox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        labelbox.set_spacing(6)
+        entrybox.set_spacing(6)
+        
+        self.box.pack_start(self.newbox, True, False, 0)
+        self.newbox.pack_start(labelbox, True, False, 0)
+        self.newbox.pack_start(entrybox, True, False, 0)
         
         label = Gtk.Label(_("Name:"))
-        label.set_justify(Gtk.Justification.LEFT)
-        box.pack_start(label, True, True, 0)
+        label.set_halign(Gtk.Align.END)
+        labelbox.pack_start(label, True, False, 0)
         
         self.entryName = Gtk.Entry()
-        box.pack_start(self.entryName, True, True, 0)
+        entrybox.pack_start(self.entryName, True, True, 0)
         
         label = Gtk.Label(_("Date:"))
-        label.set_justify(Gtk.Justification.LEFT)
-        box.pack_start(label, True, True, 0)
+        label.set_halign(Gtk.Align.END)
+        labelbox.pack_start(label, True, False, 0)
         
         self.entryDate = Gtk.Entry()
-        box.pack_start(self.entryDate, True, True, 0)
+        entrybox.pack_start(self.entryDate, True, True, 0)
         self.show_all()
         
         label = Gtk.Label(_("Rating:"))
-        label.set_justify(Gtk.Justification.LEFT)
-        box.pack_start(label, True, True, 0)
+        label.set_halign(Gtk.Align.END)
+        labelbox.pack_start(label, True, False, 0)
         
         self.entryRating = Gtk.Entry()
-        box.pack_start(self.entryRating, True, True, 0)
+        entrybox.pack_start(self.entryRating, True, True, 0)
         self.show_all()
 
 class DialogWarningSingle(Gtk.Dialog):
@@ -495,7 +516,7 @@ class ThreadRecommendations(threading.Thread):
             storedState = parent.filmListstore.get_value(iter, 4)
             if (storedState == "1"):
                 name = parent.filmListstore.get_value(iter, 1)
-                print("Name: " + name)
+                print(_("Name: ") + name)
                 id = parent.moviedb.get_movie_id(name)
                 if id is not None:
                     id_list.append(id)
