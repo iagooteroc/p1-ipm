@@ -201,7 +201,7 @@ class AppActions():
     def on_combo_changed(combo, parent):
         treeIter = combo.get_active_iter()
         model = combo.get_model()
-        if (model[treeIter][0] == "Recommended"):
+        if (model[treeIter][0] == _("Recommended")):
             parent.editButton.set_sensitive(False)
             parent.removeButton.set_sensitive(False)
             parent.recommendedThread = ThreadRecommendations(parent)
@@ -224,7 +224,7 @@ class AppActions():
                 parent.filmListstore.remove(removeIter)
             else:
                 iter = parent.filmListstore.iter_next(iter)
-        print("Previous recommended erased")
+        print(_("Previous recommended erased"))
         
 
 class AppWindow(Gtk.Window):
@@ -268,7 +268,7 @@ class AppWindow(Gtk.Window):
         self.planButton.connect("clicked", AppActions.on_plan_clicked, self)
         
         # Creating the Loading label and the Spinner
-        self.loadingText = Gtk.Label("Loading ")
+        self.loadingText = Gtk.Label(_("Loading "))
         self.spinner = Gtk.Spinner()
         
         # Creating the filmListstore model
@@ -294,7 +294,7 @@ class AppWindow(Gtk.Window):
         self.filterCombo.set_entry_text_column(0)
         
         # Adding the filter names
-        filters = [_("All movies"), _("Seen"), _("Plan to watch"), "Recommended"]
+        filters = [_("All movies"), _("Seen"), _("Plan to watch"), _("Recommended")]
         for filterName in filters:
             self.filterCombo.append_text(filterName)
         self.filterCombo.set_active(0)
@@ -365,7 +365,7 @@ class AppWindow(Gtk.Window):
                 return True
             else:
                 return False
-        if (movieFilter == "Recommended"):
+        if (movieFilter == _("Recommended")):
             if (model.get_value(iter, 4) == "3"):
                 return True
         else:
@@ -465,7 +465,7 @@ class DialogWarningMultiple(Gtk.Dialog):
 
         self.set_default_size(150, 100)
 
-        label = Gtk.Label(_("Are you sure you want to delete ") + str(num) + " films?")
+        label = Gtk.Label(_("Are you sure you want to delete ") + str(num) + _(" films?"))
 
         box = self.get_content_area()
         box.add(label)
@@ -484,7 +484,7 @@ class ThreadRecommendations(threading.Thread):
         self.parent.loadingText.hide()
         self.parent.spinner.stop()
         self.parent.spinner.hide()
-        print("Ending thread...")
+        print(_("Ending thread..."))
     
     # Manages the recommendation of films
     def recommended_function(self, parent):
@@ -495,7 +495,7 @@ class ThreadRecommendations(threading.Thread):
             storedState = parent.filmListstore.get_value(iter, 4)
             if (storedState == "1"):
                 name = parent.filmListstore.get_value(iter, 1)
-                print("Name: " + name)
+                print(_("Name: ") + name)
                 id = parent.moviedb.get_movie_id(name)
                 if id is not None:
                     id_list.append(id)
@@ -504,7 +504,7 @@ class ThreadRecommendations(threading.Thread):
     
     # Obtiene peliculas recomendadas en funcion de una lista de ids y las anhade
     def load_recommended(self, id_list, parent):
-        print("Getting recommendations...")
+        print(_("Getting recommendations..."))
         filmList = parent.moviedb.get_recommendations(id_list)
         print(filmList)
         for film in filmList:
@@ -514,7 +514,7 @@ class ThreadRecommendations(threading.Thread):
                 continue
             date = film[1]
             rating = film[2]
-            print("Adding " + film[0])
+            print(_("Adding ") + film[0])
             AppActions.add_film(parent, name, date, rating, "3")
             parent.filmModel.refilter()
         

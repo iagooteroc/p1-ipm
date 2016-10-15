@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-13 17:06+0200\n"
+"POT-Creation-Date: 2016-10-15 12:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,98 +17,130 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: p1.py:80 p1.py:286 p1.py:370
+#: p1.py:82 p1.py:251 p1.py:415
 msgid "Add"
 msgstr ""
 
-#: p1.py:82 p1.py:339 p1.py:371 p1.py:403 p1.py:418
+#: p1.py:84 p1.py:384 p1.py:416 p1.py:448 p1.py:463
 msgid "OK"
 msgstr ""
 
-#: p1.py:83 p1.py:340 p1.py:372 p1.py:404 p1.py:419
+#: p1.py:85 p1.py:385 p1.py:417 p1.py:449 p1.py:464
 msgid "Cancel"
 msgstr ""
 
-#: p1.py:95 p1.py:121
+#: p1.py:97 p1.py:124
 msgid "You must fill in all the fields"
 msgstr ""
 
-#: p1.py:104
+#: p1.py:106
 msgid "There is already one film with that title"
 msgstr ""
 
-#: p1.py:208
+#: p1.py:204 p1.py:297 p1.py:368
+msgid "Recommended"
+msgstr ""
+
+#: p1.py:227
+msgid "Previous recommended erased"
+msgstr ""
+
+#: p1.py:233
 msgid "Film list"
 msgstr ""
 
-#: p1.py:243 p1.py:318
-msgid "All movies"
-msgstr ""
-
-#: p1.py:243 p1.py:320
-msgid "Seen"
-msgstr ""
-
-#: p1.py:243 p1.py:325
-msgid "Plan to watch"
-msgstr ""
-
-#: p1.py:259
-msgid "Toggle"
-msgstr ""
-
-#: p1.py:262
-msgid "Name"
-msgstr ""
-
-#: p1.py:262
-msgid "Date"
-msgstr ""
-
-#: p1.py:262
-msgid "Rating"
-msgstr ""
-
-#: p1.py:280
+#: p1.py:246
 msgid "Select/Deselect All"
 msgstr ""
 
-#: p1.py:291 p1.py:338
+#: p1.py:255 p1.py:383
 msgid "Edit"
 msgstr ""
 
-#: p1.py:296
+#: p1.py:259
 msgid "Remove"
 msgstr ""
 
-#: p1.py:301
+#: p1.py:263
 msgid "Mark as Seen"
 msgstr ""
 
-#: p1.py:306
+#: p1.py:267
 msgid "Mark as Plan to watch"
 msgstr ""
 
-#: p1.py:343 p1.py:376
+#: p1.py:271
+msgid "Loading "
+msgstr ""
+
+#: p1.py:297 p1.py:353
+msgid "All movies"
+msgstr ""
+
+#: p1.py:297 p1.py:358
+msgid "Seen"
+msgstr ""
+
+#: p1.py:297 p1.py:363
+msgid "Plan to watch"
+msgstr ""
+
+#: p1.py:308
+msgid "Toggle"
+msgstr ""
+
+#: p1.py:312
+msgid "Name"
+msgstr ""
+
+#: p1.py:312
+msgid "Date"
+msgstr ""
+
+#: p1.py:312
+msgid "Rating"
+msgstr ""
+
+#: p1.py:388 p1.py:421
 msgid "Name:"
 msgstr ""
 
-#: p1.py:351 p1.py:383
+#: p1.py:396 p1.py:428
 msgid "Date:"
 msgstr ""
 
-#: p1.py:359 p1.py:391
+#: p1.py:404 p1.py:436
 msgid "Rating:"
 msgstr ""
 
-#: p1.py:402 p1.py:417
+#: p1.py:447 p1.py:462
 msgid "Warning"
 msgstr ""
 
-#: p1.py:408
+#: p1.py:453
 msgid "Are you sure you want to delete ''"
 msgstr ""
 
-#: p1.py:423
+#: p1.py:468
 msgid "Are you sure you want to delete "
+msgstr ""
+
+#: p1.py:468
+msgid " films?"
+msgstr ""
+
+#: p1.py:487
+msgid "Ending thread..."
+msgstr ""
+
+#: p1.py:498
+msgid "Name: "
+msgstr ""
+
+#: p1.py:507
+msgid "Getting recommendations..."
+msgstr ""
+
+#: p1.py:517
+msgid "Adding "
 msgstr ""
