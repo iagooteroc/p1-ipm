@@ -92,7 +92,14 @@ class AppActions():
         
         if (response == Gtk.ResponseType.OK):
                 if (name != '') and (date != '') and (rating != ''):
-                    AppActions.add_film(parent, name, date, rating, "0")
+                    treeIter = parent.filterCombo.get_active_iter()
+                    model = parent.filterCombo.get_model()
+                    if (model[treeIter][0] == _("Seen")):
+                        AppActions.add_film(parent, name, date, rating, "1")
+                    elif (model[treeIter][0] == _("Plan to watch")):
+                        AppActions.add_film(parent, name, date, rating, "2")
+                    else:
+                        AppActions.add_film(parent, name, date, rating, "0")
                 else:
                     AppActions.error_dialog(parent, _("You must fill in all the fields"))
 
@@ -204,8 +211,11 @@ class AppActions():
         if (model[treeIter][0] == _("Recommended")):
             parent.editButton.set_sensitive(False)
             parent.removeButton.set_sensitive(False)
-            parent.recommendedThread = ThreadRecommendations(parent)
-            parent.recommendedThread.start()
+            try:
+                parent.recommendedThread = ThreadRecommendations(parent)
+                parent.recommendedThread.start()
+            except Exception:
+                print("Error: An error has ocurred crating the thread")
             
         else:
             parent.editButton.set_sensitive(True)
